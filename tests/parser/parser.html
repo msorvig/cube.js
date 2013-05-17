@@ -1,0 +1,29 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js" ></script>
+	<script src="../../src/lexer.js" ></script>
+	<script src="../../src/parser.js" ></script>
+
+	<script type="text/javascript">
+
+	function queryChanged() {
+		var ast = perseQuery($(inputQuery).val())
+		console.log(ast);
+		console.log(ast.description())
+	}
+	</script>
+</head>
+
+<body>
+	Query:
+	
+	<input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
+	
+	<div id="parserout"></table>
+
+</body>
+
+</html>
