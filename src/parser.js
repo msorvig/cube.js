@@ -5,6 +5,7 @@ var AstType = {                 // Node members for type:
     UnaryOperator : "UnaryOperator",        // operator : "+"/"-"
     BinaryOperator : "BinaryOperator",
     Expression : "Expression",
+    ExpressionList : "ExpressionList",
     NumberExpression : "NumberExpression",     // value : 0
     VariableExpression : "VariableExpression" // value : ""
 }
@@ -44,6 +45,13 @@ function createBinaryOperatorNode(operator, left, right) {
     base.left = left
     base.right = right
     base.visit = function(visitor) { base.left.visit(visitor); base.right.visit(visitor); visitor(base) }
+    return base
+}
+
+function createExpressionListNode(expressions) {
+    var base = createAstNode(AstType.ExpressionList)
+    base.expressions = expressions
+    // visit not implemented
     return base
 }
 
@@ -176,12 +184,19 @@ function Parser() {
         return parseBinaryOperatorRight(0, left)
     }
 
+    function parseExpressionList() {
+        var expressions = []
+        while (currentToken() !== undefined) {
+            expressions.push(parseExpression())
+        }
+        return createExpressionListNode(expressions)
+    }
+
     function parse(lexed) {
         m_lexed = lexed
         m_position = 0
         m_tokenCount = lexed.tokens.length
-
-        m_tree = parseExpression()
+        m_tree = parseExpressionList()
         return m_tree
     }
 
@@ -200,7 +215,7 @@ var parse = function(lexed){
     return parser.parse(lexed)
 }
 
-function evalAst(node, lookup) {
+function evalExpressionAst(node, lookup) {
     var stack = new Array()
     stack.push(0)
 
@@ -232,10 +247,17 @@ function evalAst(node, lookup) {
 
     return stack.pop()
 }
+
+function evalExpressionListAst(expressionListNode, lookup) {
+    var results = []
+    for (var i = 0; i < expressionListNode.expressions.length; ++i) {
+        results.push(evalExpressionAst(expressionListNode.expressions[i], lookup))
+    }
+    return results;
+}
+
 function perseQuery(query) {
     var ast  = parse(lex(query))
-    var sum = evalAst(ast, function(name) { return 1 } )
-    console.log("sum is " + sum)
     return ast
 }
 

@@ -11,8 +11,12 @@
 
 	function queryChanged() {
 		var ast = perseQuery($(inputQuery).val())
-		console.log(ast);
-		console.log(ast.description())
+		console.log(ast)
+
+	    var results = evalExpressionListAst(ast, function(name) { return 1 } )
+	    for (var i = 0; i < results.length; ++i) {
+			console.log("result for " + i + " is " + results[i])
+		}
 	}
 	</script>
 </head>
