@@ -7,7 +7,8 @@ var AstType = {                 // Node members for type:
     Expression : "Expression",
     ExpressionList : "ExpressionList",
     NumberExpression : "NumberExpression",     // value : 0
-    VariableExpression : "VariableExpression" // value : ""
+    VariableExpression : "VariableExpression", // value : ""
+    FunctionCallExpression: "FunctionCallExpression",
 }
 
 function createAstNode(type) {
@@ -63,6 +64,14 @@ function createVariableExpressionNode(value) {
     return createValueNode(AstType.VariableExpression, value)
 }
 
+function createFunctionCallExpressionNode(identifier, expression) {
+    var base = createAstNode(AstType.FunctionCallExpression)
+    base.identifier = identifier
+    base.expression = expression
+    base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
+    return base
+}
+
 function Parser() {
     var m_lexed = {}
     var m_position = 0
@@ -108,15 +117,16 @@ function Parser() {
         return numberExpression
     }
 
-    // variableExpression -> variable
-    function parseVariableExpression() {
-        var variableExpression = createVariableExpressionNode(currentTokenValue())
-        nextToken()
-        return variableExpression
-    }
-
     function parseIdentifierExpression() {
-        return parseVariableExpression()
+        var identifier = currentTokenValue()
+        nextToken() // eat identifier
+        if (currentToken() != "(")
+            return createVariableExpressionNode(identifier)
+
+        nextToken() // eat "("
+        var expression = parseExpression()
+        nextToken() // eat ")"
+        return createFunctionCallExpressionNode(identifier, expression)
     }
 
     // parenthesesExpression -> ( expression )
