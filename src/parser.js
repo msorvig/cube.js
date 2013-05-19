@@ -33,9 +33,11 @@ function createErrorNode(message) {
     return base
 }
 
-function createUnaryOpNode(operator) {
+function createUnaryOperatorNode(operator, expression) {
     var base = createAstNode(AstType.UnaryOperator)
     base.operator = operator
+    base.expression = expression
+    base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
     return base
 }
 
@@ -146,6 +148,14 @@ function Parser() {
         }
     }
 
+    function parseUnaryOperatorExpression() {
+        var operator = currentToken()
+        console.log("unary" + operator)
+        nextToken() // eat operator
+        var expression = parsePrimaryExpression()
+        return createUnaryOperatorNode(operator, expression)
+    }
+
     // primaryExpression -> identifierExpression
     // primaryExpression -> numberExpression
     // primaryExpression -> parseParenthesesExpression
@@ -155,6 +165,8 @@ function Parser() {
             case Token.Identifier : return parseIdentifierExpression()
             case Token.Number : return parseNumberExpression()
             case "(" : return parseParenthesesExpression()
+            case "-" : return parseUnaryOperatorExpression()
+            case "+" : return parseUnaryOperatorExpression()
             default: return createErrorNode("Invalid Primary Expression token '" + currentToken() + "'")
         }
     }
@@ -204,6 +216,10 @@ function evalAst(node, lookup) {
             var value = lookup(thenode.value)
             // console.log("push " + value)
             stack.push(value)
+        } else if (thenode.type === AstType.UnaryOperator) {
+            var expression = stack.pop()
+            var result = eval(thenode.operator + "expression")
+            stack.push(result)
         } else if (thenode.type === AstType.BinaryOperator) {
             var right = stack.pop()
             var left = stack.pop()
