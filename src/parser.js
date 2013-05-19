@@ -1,10 +1,7 @@
 // An expression parser, based on the Kaleidoscope LLVM tutorial.
 
 var AstType = {                 // Node members for type:
-    TermList : "TermList",      // terms : []
-    Term : "Term",              // value : ""
     Error : "Error",            // message : ""
-    UnaryOp : "UnaryOp",        // operator : "+"/"-"
     UnaryOperator : "UnaryOperator",        // operator : "+"/"-"
     BinaryOperator : "BinaryOperator",
     Expression : "Expression",
