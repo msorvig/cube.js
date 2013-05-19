@@ -6,16 +6,19 @@ var AstType = {                 // Node members for type:
     Error : "Error",            // message : ""
     UnaryOp : "UnaryOp",        // operator : "+"/"-"
     UnaryOperator : "UnaryOperator",        // operator : "+"/"-"
+    BinaryOperator : "BinaryOperator",
     Expression : "Expression",
     NumberExpression : "NumberExpression",     // value : 0
     VariableExpression : "VariableExpression" // value : ""
 }
 
 function createAstNode(type) {
-    return {
+    var nnode = {
         type : type,
-        description : function() { return "Node: " + type }
+        description : function() { return "Node: " + type },
+        visit : function(visitor) { visitor(nnode) }
     }
+    return nnode
 }
 
 function createValueNode(type, value) {
@@ -25,11 +28,24 @@ function createValueNode(type, value) {
 }
 
 function createErrorNode(message) {
-    return { type : AstType.Error, message : message }
+    var base = createAstNode(AstType.Error)
+    base.message = message
+    return base
 }
 
 function createUnaryOpNode(operator) {
-    return { type : AstType.UnaryOperator, operator : operator }
+    var base = createAstNode(AstType.UnaryOperator)
+    base.operator = operator
+    return base
+}
+
+function createBinaryOperatorNode(operator, left, right) {
+    var base = createAstNode(AstType.BinaryOperator)
+    base.operator = operator
+    base.left = left
+    base.right = right
+    base.visit = function(visitor) { base.left.visit(visitor); base.right.visit(visitor); visitor(base) }
+    return base
 }
 
 function createNumberExpressionNode(value) {
@@ -60,6 +76,24 @@ function Parser() {
         ++m_position;
     }
 
+    var m_tokenPredecence = {
+      '<' : 10,
+      '>' : 10,
+      '+' : 20,
+      '-' : 30,
+      '/' : 40,
+      '*' : 50,
+    }
+
+    function tokenPrecedence(token) {
+        if (token === undefined)
+            return -1
+        var precedence = m_tokenPredecence[token]
+        if (precedence === undefined)
+            return -1
+        return precedence
+    }
+
     // numberExpression -> number
     function parseNumberExpression() {
         var numberExpression = createNumberExpressionNode(currentTokenValue())
@@ -83,9 +117,33 @@ function Parser() {
         nextToken() // "("
         var node = parseExpression()
         if (currentToken() != ")")
-            return new ErrorNode("Expected ')'")
+            return new createErrorNode("Expected ')'")
         nextToken() // ")"
         return node
+    }
+
+    function parseBinaryOperatorRight(expressionPrecedence, left) {
+        while (1) {
+            var precedence = tokenPrecedence(currentToken())
+            if (precedence < expressionPrecedence)
+                return left
+
+            var operator = currentToken()
+            nextToken()
+
+            var right = parsePrimaryExpression()
+            if (right.type === Error)
+                return right
+
+            var nextPrecedence = tokenPrecedence(currentToken())
+            if (precedence < nextPrecedence) {
+                right = parseBinaryOperatorRight(precedence + 1, right)
+                if (right.type === Error)
+                    return right
+            }
+
+            left = createBinaryOperatorNode(operator, left, right)
+        }
     }
 
     // primaryExpression -> identifierExpression
@@ -97,12 +155,16 @@ function Parser() {
             case Token.Identifier : return parseIdentifierExpression()
             case Token.Number : return parseNumberExpression()
             case "(" : return parseParenthesesExpression()
-            default: return new ErrorNode("Invalid Primary Expression token '" + currentToken() + "'")
+            default: return createErrorNode("Invalid Primary Expression token '" + currentToken() + "'")
         }
     }
 
-    function parseExpression(){
-        return parsePrimaryExpression()
+    function parseExpression() {
+        var left = parsePrimaryExpression()
+        if (left.type === Error)
+            return left
+
+        return parseBinaryOperatorRight(0, left)
     }
 
     function parse(lexed) {
@@ -110,7 +172,7 @@ function Parser() {
         m_position = 0
         m_tokenCount = lexed.tokens.length
 
-        m_tree = parsePrimaryExpression()
+        m_tree = parseExpression()
         return m_tree
     }
 
@@ -129,6 +191,38 @@ var parse = function(lexed){
     return parser.parse(lexed)
 }
 
-function perseQuery(query) {
-    return parse(lex(query))
+function evalAst(node, lookup) {
+    var stack = new Array()
+    stack.push(0)
+
+    node.visit(function(thenode) {
+        // console.log("visit " + thenode.type)
+        if (thenode.type === AstType.NumberExpression) {
+            // console.log("push " + thenode.value)
+            stack.push(thenode.value)
+        } else if (thenode.type === AstType.VariableExpression) {
+            var value = lookup(thenode.value)
+            // console.log("push " + value)
+            stack.push(value)
+        } else if (thenode.type === AstType.BinaryOperator) {
+            var right = stack.pop()
+            var left = stack.pop()
+            // console.log("pop " + right)
+            // console.log("pop " + left)
+
+            var result = eval("left " + thenode.operator + " right")
+
+            //console.log("push " + result)
+            stack.push(result)
+        }
+    })
+
+    return stack.pop()
 }
+function perseQuery(query) {
+    var ast  = parse(lex(query))
+    var sum = evalAst(ast, function(name) { return 1 } )
+    console.log("sum is " + sum)
+    return ast
+}
+
