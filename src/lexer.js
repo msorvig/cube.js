@@ -20,6 +20,7 @@ function Lexer() {
     var m_inputIndex = 0
     var m_token = Token.EOF
     var m_tokenValue = ""
+    var m_tokenStart = 0
     var m_mode = Token.Operator
         
     function setInput(input) { 
@@ -35,6 +36,10 @@ function Lexer() {
         if (m_token === Token.Number)
             return parseFloat(m_tokenValue)
         return m_tokenValue
+    }
+
+    function tokenIndex() {
+        return m_tokenStart;
     }
 
     function isWhitespace (char) {
@@ -54,6 +59,7 @@ function Lexer() {
       while (true) {
           // Stop on end of input.
           if (m_inputIndex >= m_input.length) {
+              m_tokenStart = m_inputIndex
               m_tokenValue = ""
               m_token = Token.EOF
               return Token.EOF
@@ -77,6 +83,7 @@ function Lexer() {
                
             if (m_mode === Token.Operator) {
                 m_tokenValue = ""
+                m_tokenStart = m_inputIndex
                 // Check if we should start building an identifer or number
                 if (isLetter(char))
                     m_mode = Token.Identifier
@@ -104,15 +111,22 @@ function Lexer() {
 
         var tokens = []
         var values = []
+        var indices = []
 
         var token = nextToken()
-        while (token != Token.EOF){
+        do {
             tokens.push(token)
             values.push(tokenValue())
+            indices.push(tokenIndex())
             token = nextToken()
-        }
+        } while (token != Token.EOF)
 
-        return { "tokens" : tokens, "tokenValues" : values }
+        // push EOF token as well
+        tokens.push(token)
+        values.push(tokenValue())
+        indices.push(tokenIndex())
+
+        return { "tokens" : tokens, "tokenValues" : values, indices : indices }
     }
     
     return {
@@ -121,6 +135,7 @@ function Lexer() {
         "nextToken" : nextToken,
         "token" : token,
         "tokenValue" : tokenValue,
+        "tokenIndex" : tokenIndex,
         "lex" : lex
     }
 }

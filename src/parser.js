@@ -11,67 +11,6 @@ var AstType = {                 // Node members for type:
     FunctionCallExpression: "FunctionCallExpression",
 }
 
-function createAstNode(type) {
-    var nnode = {
-        type : type,
-        description : function() { return "Node: " + type },
-        visit : function(visitor) { visitor(nnode) }
-    }
-    return nnode
-}
-
-function createValueNode(type, value) {
-    var base = createAstNode(type)
-    base.value = value
-    return base
-}
-
-function createErrorNode(message) {
-    var base = createAstNode(AstType.Error)
-    base.message = message
-    return base
-}
-
-function createUnaryOperatorNode(operator, expression) {
-    var base = createAstNode(AstType.UnaryOperator)
-    base.operator = operator
-    base.expression = expression
-    base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
-    return base
-}
-
-function createBinaryOperatorNode(operator, left, right) {
-    var base = createAstNode(AstType.BinaryOperator)
-    base.operator = operator
-    base.left = left
-    base.right = right
-    base.visit = function(visitor) { base.left.visit(visitor); base.right.visit(visitor); visitor(base) }
-    return base
-}
-
-function createExpressionListNode(expressions) {
-    var base = createAstNode(AstType.ExpressionList)
-    base.expressions = expressions
-    // visit not implemented
-    return base
-}
-
-function createNumberExpressionNode(value) {
-    return createValueNode(AstType.NumberExpression, value)
-}
-
-function createVariableExpressionNode(value) {
-    return createValueNode(AstType.VariableExpression, value)
-}
-
-function createFunctionCallExpressionNode(identifier, expression) {
-    var base = createAstNode(AstType.FunctionCallExpression)
-    base.identifier = identifier
-    base.expression = expression
-    base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
-    return base
-}
-
 function Parser() {
     var m_lexed = {}
     var m_position = 0
@@ -79,12 +18,86 @@ function Parser() {
     var m_tree = {}
     var m_current = 0
 
+    function createAstNode(type) {
+        var nnode = {
+            type : type,
+            description : function() { return "Node: " + type },
+            visit : function(visitor) { visitor(nnode) },
+        }
+        return nnode
+    }
+
+    function createValueNode(type, value, tokenRange) {
+        var base = createAstNode(type)
+        base.value = value
+        base.range = tokenRange
+        return base
+    }
+
+    function createErrorNode(message, tokenRange) {
+        var base = createAstNode(AstType.Error)
+        base.message = message
+        base.range = tokenRange
+        return base
+    }
+
+    function createUnaryOperatorNode(operator, tokenRange, expression) {
+        var base = createAstNode(AstType.UnaryOperator)
+        base.operator = operator
+        base.range = range
+        base.expression = expression
+        base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
+        return base
+    }
+
+    function createBinaryOperatorNode(operator, tokenRange, left, right) {
+        var base = createAstNode(AstType.BinaryOperator)
+        base.operator = operator
+        base.left = left
+        base.right = right
+        base.range = tokenRange
+        base.visit = function(visitor) { base.left.visit(visitor); base.right.visit(visitor); visitor(base) }
+        return base
+    }
+
+    function createExpressionListNode(expressions) {
+        var base = createAstNode(AstType.ExpressionList)
+        base.expressions = expressions
+        // visit not implemented
+        return base
+    }
+
+    function createNumberExpressionNode(value, tokenRange) {
+        return createValueNode(AstType.NumberExpression, value, tokenRange)
+    }
+
+    function createVariableExpressionNode(value, tokenRange) {
+        return createValueNode(AstType.VariableExpression, tokenRange)
+    }
+
+    function createFunctionCallExpressionNode(identifier, tokenRange, expression) {
+        var base = createAstNode(AstType.FunctionCallExpression)
+        base.identifier = identifier
+        base.range = tokenRange
+        base.expression = expression
+        base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
+        return base
+    }
+
+
     function currentTokenValue() {
         return m_lexed.tokenValues[m_position]
     }
 
     function currentToken() {
         return m_lexed.tokens[m_position]
+    }
+
+    // returns token [index, length]
+    function currentTokenRange() {
+        var pos = m_lexed.indices[m_position]
+        var nextPos = m_lexed.indices[m_position + 1]
+        return [pos, nextPos - pos - 1]
     }
 
     function nextToken() {
@@ -112,21 +125,22 @@ function Parser() {
 
     // numberExpression -> number
     function parseNumberExpression() {
-        var numberExpression = createNumberExpressionNode(currentTokenValue())
+        var numberExpression = createNumberExpressionNode(currentTokenValue(), currentTokenRange())
         nextToken()
         return numberExpression
     }
 
     function parseIdentifierExpression() {
         var identifier = currentTokenValue()
+        var identifierRange = currentTokenRange();
         nextToken() // eat identifier
         if (currentToken() != "(")
-            return createVariableExpressionNode(identifier)
+            return createVariableExpressionNode(identifier, identifierRange)
 
         nextToken() // eat "("
         var expression = parseExpression()
         nextToken() // eat ")"
-        return createFunctionCallExpressionNode(identifier, expression)
+        return createFunctionCallExpressionNode(identifier, identifierRange, expression)
     }
 
     // parenthesesExpression -> ( expression )
@@ -134,7 +148,7 @@ function Parser() {
         nextToken() // "("
         var node = parseExpression()
         if (currentToken() != ")")
-            return new createErrorNode("Expected ')'")
+            return new createErrorNode("Expected ')'", currentTokenRange())
         nextToken() // ")"
         return node
     }
@@ -146,6 +160,7 @@ function Parser() {
                 return left
 
             var operator = currentToken()
+            var operatorRange = currentTokenRange()
             nextToken()
 
             var right = parsePrimaryExpression()
@@ -159,17 +174,24 @@ function Parser() {
                     return right
             }
 
-            left = createBinaryOperatorNode(operator, left, right)
+            left = createBinaryOperatorNode(operator, operatorRange, left, right)
         }
     }
 
     function parseUnaryOperatorExpression() {
         var operator = currentToken()
-        console.log("unary" + operator)
+        var operatorRange = currentTokenRange()
         nextToken() // eat operator
         var expression = parsePrimaryExpression()
-        return createUnaryOperatorNode(operator, expression)
+        return createUnaryOperatorNode(operator, operatorRange, expression)
     }
+/*
+    function parseUnaryOperatorExpression(tokenStream) {
+        return createUnaryOperatorNode(
+            tokenStream.token(), tokenStream.tokenRange(), 
+            parsePrimaryExpression(s.nextToken())
+    }
+*/
 
     // primaryExpression -> identifierExpression
     // primaryExpression -> numberExpression
@@ -182,7 +204,7 @@ function Parser() {
             case "(" : return parseParenthesesExpression()
             case "-" : return parseUnaryOperatorExpression()
             case "+" : return parseUnaryOperatorExpression()
-            default: return createErrorNode("Invalid Primary Expression token '" + currentToken() + "'")
+            default: return createErrorNode("Invalid Primary Expression token '" + currentToken() + "'", currentTokenRange)
         }
     }
 
@@ -196,7 +218,7 @@ function Parser() {
 
     function parseExpressionList() {
         var expressions = []
-        while (currentToken() !== undefined) {
+        while (currentToken() !== Token.EOF) {
             expressions.push(parseExpression())
         }
         return createExpressionListNode(expressions)
