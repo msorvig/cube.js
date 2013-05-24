@@ -1,10 +1,10 @@
 
 function makeRange() {
-    return [[0,0]] // array of [pos, len]
+    return [] // array of [pos, len]
 }
 
 function isEmptyRange(range) {
-    return range.length = 1 && range[0][0] == 0 && range[0][1] == 0
+    return range.length == 0
 }
 
 function _mergeRange(range, index) {
