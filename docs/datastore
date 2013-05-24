@@ -1,0 +1,6 @@
+
+Transfer and simple storage : Table [table.js] (javascript row store / JSON structure)
+Optimized storage           : TypedTable [typedtable.js] (typed arrays compressed column store)
+Range storage               : Range [range.js]
+Views                   	: TableView [tableview.js] (applies a Range to a Table)
+
