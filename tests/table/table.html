@@ -1,46 +1,51 @@
 <html>
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-	<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js" ></script>
-	<script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js"></script>
-	<script src="../../src/cube.js" ></script>
-	
-	<script type="text/javascript">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js" ></script>
+    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js"></script>
 
-	var cube = new TableCube
-	function dataReady(data)
-	{
-	    cube.setTable(data)
-		queryChanged()
-		queryChanged() // ### get consistent layout
-	}
-	
-	var dataTable = undefined
-	function queryChanged()
-	{
-		if (dataTable !== undefined)
-			dataTable.fnDestroy()
+    <script src="../../src/table.js" ></script>
+    <script src="../../src/lexer.js" ></script>
+    <script src="../../src/parser.js" ></script>
+    <script src="../../src/semantic.js" ></script>
+    <script src="../../src/cube.js" ></script>
 
-		var result = cube.select($(inputQuery).value)
-		table2html($(tableDestination), result)
-		dataTable = $(tableDestination).dataTable()
-	}
-	
-	loadData(".", dataReady)	
-	
-	</script>
+    <script type="text/javascript">
+
+    var cube = new TableCube
+    function dataReady(data)
+    {
+        cube.setTable(data)
+        queryChanged()
+        queryChanged() // ### get consistent layout
+    }
+
+    var dataTable = undefined
+    function queryChanged()
+    {
+        if (dataTable !== undefined)
+            dataTable.fnDestroy()
+
+        var result = cube.select($(inputQuery).val())
+        table2html($(tableDestination), result)
+        dataTable = $(tableDestination).dataTable()
+    }
+
+    loadData(".", dataReady)
+
+    </script>
 </head>
 
 <body>
-	Query:
-	
-	<input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
-	
-	<table id="tableDestination"></table>
+    Query:
+
+    <input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
+
+    <table id="tableDestination"></table>
 
 </body>
 

@@ -14,18 +14,18 @@ def create2DTableSchema(dimensionNames, measureNames):
 def create2DTableData(dimensionNames, measureNames, size):
     table = []
     dimentionCount = len(dimensionNames)
-    
+
     for rowDimentionIndexes in itertools.product(range(size), repeat = dimentionCount):
         row = {}
         for index, val in enumerate(rowDimentionIndexes):
             row[dimensionNames[index]] = dimensionNames[index] + str(val)
             for measureIndex, measureName in enumerate(measureNames):
-                row[measureName] = 10 * (measureIndex + 1) * val # generate arbitary measure values
+                row[measureName] = 10 * (measureIndex + 1) * val # generate arbitrary measure values
         table.append(row)
     return table
 
-dimensions = ["DimensionA", "DimensionB"]
-measures = ["Measure1", "Measure2"]
+dimensions = ["DimA", "DimB"]
+measures = ["Mes1", "Mes2"]
 root = { "schema" : create2DTableSchema(dimensions, measures), 
          "rows"  : create2DTableData(dimensions, measures, 10), 
         }
@@ -34,9 +34,6 @@ json = json.dumps(root);
 f = open('data.json', 'w')
 #print json
 f.write(json)
-
-
-
 
     
     
