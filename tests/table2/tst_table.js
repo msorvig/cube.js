@@ -9,9 +9,9 @@ test("rows", function() {
     var ids = ["Foo", "Bar", "Baz"]
     var table = makeTable(ids)
 
-    var row0 = ["1", "A", "3.14"]
-    var row1 = ["2", "B", "2.71"]
-    var row2 = ["2", "B", "6.62"]
+    var row0 = { Foo: 1, "Bar" : "A", Baz : 3.14 }
+    var row1 = { Foo: 2, "Bar" : "B", Baz : 2.71 }
+    var row2 = { Foo: 3, "Bar" : "C", Baz : 6.62 }
 
     equal(table.rowCount(), 0)
 

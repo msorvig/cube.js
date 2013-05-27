@@ -8,7 +8,7 @@
             ]
         }
         rows [
-        
+            { "fieldId" : value }
         ]
     }
 */
@@ -46,6 +46,10 @@ function makeTable(ids, labels, kinds) {
         return table.rows[index]
     }
 
+    function fieldCount() {
+        return table.schema.fields.length
+    }
+
     function fieldAttributes(attribute) {
         return table.schema.fields.map(
             function(field){ return field[attribute] }
@@ -70,14 +74,20 @@ function makeTable(ids, labels, kinds) {
         )
     }
 
+    function cell(row, field) {
+        return table.rows[row][field]
+    }
+
     return {
         "addRow" : addRow,
         "rowCount" : rowCount,
         "row" : row,
+        "fieldCount" : fieldCount,
         "fieldIds" : fieldIds,
         "fieldLabels" : fieldLabels,
         "fieldKinds" : fieldKinds,
         "filterFields" : filterFields,
+        "cell" : cell
     }
 }
 
