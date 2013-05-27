@@ -1,6 +1,11 @@
 
 function makeRange() {
-    var range = [] // array of [pos, len]
+    if (arguments.length > 2)
+        console.log("ERROR: makeRange expects at most 2 arguments")
+
+    var initPos = arguments[0] || 0
+    var initLen = arguments[1] || 0
+    var range = [[initPos, initLen]] // array of [pos, len]
 
     function _mergeRange(index) {
         //console.log("merge " + index + " " + range.length)
@@ -29,7 +34,7 @@ function makeRange() {
     }
 
     function isEmpty() {
-        return range.length == 0
+        return range.length == 0 || (range[0][0] == 0 && range[0][1] == 0)
     }
 
     function add(newpos, newlen) {
@@ -76,21 +81,35 @@ function makeRange() {
         return false
     }
 
-    function foreach(functor) {
+    function forEach(functor) {
         for (var i = 0; i < range.length; ++i) {
             var pos = range[i][0]
             var len = range[i][1]
             for (var j = pos; j < pos + len; ++j) {
-                functor(i + j)
+                functor(j)
             }
         }
+    }
+
+    function map(functor) {
+        var array = []
+        forEach(function(index) {
+            array.push(functor(index))
+        })
+        return array
+    }
+
+    function toString() {
+        return range.toString()
     }
 
     return  {
         "isEmpty" : isEmpty,
         "add" : add,
         "contains" : contains,
-        "foreach" : foreach,
+        "forEach" : forEach,
+        "map" : map,
+        "toString" : toString,
     }
 }
 
