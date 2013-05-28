@@ -44,7 +44,7 @@ function Parser() {
     function createUnaryOperatorNode(operator, tokenRange, expression) {
         var base = createAstNode(AstType.UnaryOperator)
         base.operator = operator
-        base.range = range
+        base.range = tokenRange
         base.expression = expression
         base.visit = function(visitor) { base.expression.visit(visitor); visitor(base) }
         return base
@@ -72,7 +72,7 @@ function Parser() {
     }
 
     function createVariableExpressionNode(value, tokenRange) {
-        return createValueNode(AstType.VariableExpression, tokenRange)
+        return createValueNode(AstType.VariableExpression, value, tokenRange)
     }
 
     function createFunctionCallExpressionNode(identifier, tokenRange, expression) {
@@ -101,7 +101,7 @@ function Parser() {
     }
 
     function nextToken() {
-        console.log("consumed token " + m_lexed.tokenValues[m_position] + " token " + m_position + " of " + m_tokenCount)
+        // console.log("consumed token " + m_lexed.tokenValues[m_position] + " token " + m_position + " of " + m_tokenCount)
         ++m_position;
     }
 

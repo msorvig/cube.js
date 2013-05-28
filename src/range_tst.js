@@ -120,3 +120,19 @@ test("forEach", function() {
     ok(range)
 })
 
+test("map", function() {
+    var range = makeRange(0, 10)
+    var incremented = range.map(function(index) { return index + 1 })
+    equal(incremented.length, 10)
+    equal(incremented[0], 1)
+    equal(incremented[5], 6)
+})
+
+test("filter", function() {
+    var range = makeRange(0, 10)
+    var selected = range.filter(function(index) { return index == 6})
+    equal(selected.length, 1)
+    equal(selected[0], 6)
+})
+
+

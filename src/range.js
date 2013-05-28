@@ -93,8 +93,17 @@ function makeRange() {
 
     function map(functor) {
         var array = []
-        forEach(function(index) {
+        forEach (function(index) {
             array.push(functor(index))
+        })
+        return array
+    }
+
+    function filter(prediacte) {
+        var array = []
+        forEach (function(index) {
+            if (prediacte(index))
+                array.push(index)
         })
         return array
     }
@@ -109,7 +118,7 @@ function makeRange() {
         "contains" : contains,
         "forEach" : forEach,
         "map" : map,
+        "filter" : filter,
         "toString" : toString,
     }
 }
-

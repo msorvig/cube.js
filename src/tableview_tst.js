@@ -40,5 +40,8 @@ test("columns", function() {
         var filteredRow = { "Bar" : table.row(index).Bar } // select 2nd column
         deepEqual(row, filteredRow)
     })
+
+    equal(tableView.lookupColumn("Bar"), 1)
+    equal(tableView.lookupColumn("Foo"), undefined) // or -1? (like Array.indexOf)
 });
 

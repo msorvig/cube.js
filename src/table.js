@@ -13,13 +13,20 @@
     }
 */
 
-
+// Constructor 1 : makeTable(ids, labels, kinds)
+// Constructor 2: function makeTabe(tableData)
+// ### factor 1 into tableBuilder?
 function makeTable(ids, labels, kinds) {
-    var table = {
-        "schema" : { "fields" : makeFields(ids, labels, kinds) },
-        "rows" : []
+    var table = {}
+    if (ids.schema !== undefined && ids.rows !== undefined) {
+        // hackety -- a table JSON data structure was passed. Use it.
+        table = ids
+    } else {
+        table = {
+            "schema" : { "fields" : makeFields(ids, labels, kinds) },
+            "rows" : []
+        }
     }
-
     function makeFields(ids, labels, kinds) {
         var definedIds = ids // id is mandatory
         var definedLabels = labels || [] // optional
@@ -48,6 +55,14 @@ function makeTable(ids, labels, kinds) {
 
     function fieldCount() {
         return table.schema.fields.length
+    }
+
+    function field(index) {
+        return table.schema.fields[index];
+    }
+
+    function fieldAttribute(index, attribute) {
+        table.schema.fields[index][attribute]
     }
 
     function fieldAttributes(attribute) {
@@ -82,6 +97,7 @@ function makeTable(ids, labels, kinds) {
         "addRow" : addRow,
         "rowCount" : rowCount,
         "row" : row,
+        "field" : field,
         "fieldCount" : fieldCount,
         "fieldIds" : fieldIds,
         "fieldLabels" : fieldLabels,

@@ -54,9 +54,9 @@ function semantic(expressionListNode, lookupVariable) {
 }
 
 // Evaluate, then logical AND the expressions.
-function evaluateBoolExpressions(expressionListNode, lookupVariable) {
-    for (var i = 0; i < expressionListNode.expressions.length; ++i) {
-        if (!evalAst(expressionListNode.expressions[i], lookupVariable))
+function evaluateBoolExpressions(rowSelectors, lookupVariable) {
+    for (var i = 0; i < rowSelectors.length; ++i) {
+        if (!evalExpressionAst(rowSelectors[i], lookupVariable))
             return false
     }
     return true
