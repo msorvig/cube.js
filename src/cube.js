@@ -12,8 +12,10 @@ function makeTableCube(tableView)
 {
     var view = tableView;
     var sem = {}
-    if (view === undefined)
+    if (view === undefined) {
         console.log("Error: TableCube constructed with null view")
+        return undefined
+    }
 
     function select(query)
     {
@@ -81,9 +83,9 @@ function makeTableCube(tableView)
     return { "select" : select }
 }
 
-function makeCube(dataTable)
+function makeCube(view)
 {
-    return new makeTableCube(dataTable)
+    return makeTableCube(view)
 }
 
 // view->html converter
