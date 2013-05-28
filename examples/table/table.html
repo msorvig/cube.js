@@ -9,6 +9,8 @@
     <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.js"></script>
 
     <script src="../../src/table.js" ></script>
+	<script src="../../src/range.js" ></script>
+    <script src="../../src/tableview.js" ></script>
     <script src="../../src/lexer.js" ></script>
     <script src="../../src/parser.js" ></script>
     <script src="../../src/semantic.js" ></script>
@@ -16,10 +18,10 @@
 
     <script type="text/javascript">
 
-    var cube = new TableCube
+    var cube = {}
     function dataReady(data)
     {
-        cube.setTable(data)
+        cube = new makeCube(makeTableView(makeTable(data)))
         queryChanged()
         queryChanged() // ### get consistent layout
     }
