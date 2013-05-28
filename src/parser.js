@@ -270,7 +270,19 @@ function evalExpressionAst(node, lookup) {
             // console.log("pop " + right)
             // console.log("pop " + left)
 
-            var result = eval("left " + thenode.operator + " right")
+            var result
+            switch (thenode.operator) {
+                case ">" : result = left > right; break
+                case "<" : result = left < right; break
+                case "+" : result = left + right; break
+                case "-" : result = left - right; break
+                case "*" : result = left * right; break
+                case "/" : result = left / right; break
+                case ">=" : result = left >= right; break
+                case "<=" : result = left <= right; break
+                case "==" : result = left == right; break
+                default : result = eval("left " + thenode.operator + " right"); break; // slow path!
+            }
 
             //console.log("push " + result)
             stack.push(result)
