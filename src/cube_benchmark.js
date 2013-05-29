@@ -23,9 +23,7 @@ function benchmark(name, options) {
 function makeTestTable()
 {
     var ids = ["Foo", "Bar", "Baz"]
-
     var table = makeTable(ids)
-
     var rows = [ { Foo: 1, Bar : "A", Baz : 3.14 },
                  { Foo: 2, Bar : "B", Baz : 2.71 },
                  { Foo: 3, Bar : "C", Baz : 6.62 } ]
