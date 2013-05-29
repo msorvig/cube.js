@@ -19,7 +19,7 @@ function validVariableVisit(rootNode, lookupVariable) {
 }
 
 // Sort expressions into column, row, and invalid selector expressions.
-function semantic(expressionListNode, lookupVariable) {
+function analyzeAst(expressionListNode, lookupVariable) {
 
     var columnSelectors = []
     var rowSelectors = []

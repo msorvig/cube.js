@@ -11,7 +11,7 @@ function loadData(dataUrl, callback)
 function makeTableCube(tableView)
 {
     var view = tableView;
-    var sem = {}
+    var semantic = {}
     if (view === undefined) {
         console.log("Error: TableCube constructed with null view")
         return undefined
@@ -24,24 +24,23 @@ function makeTableCube(tableView)
         // Parse and analyze query
         var ast = perseQuery(query)
         var isValidVariable = function(variableName) { return view.columns().indexOf(variableName) != -1 }
-        sem = semantic(ast, isValidVariable)
+        semantic = analyzeAst(ast, isValidVariable)
 
         // Print expressions with errors
-        for (var i = 0; i < sem.errorExpressions().length; ++i) {
+        for (var i = 0; i < semantic.errorExpressions().length; ++i) {
             console.log("invalid expression")
-            console.log(sem.errorExpressions()[i])
+            console.log(semantic.errorExpressions()[i])
         }
 
         // create column and row ranges with selected columns/rows
-        var columns = selectColumns(view.columns(), sem.includeColumns(), sem.excludeColumns())
+        var columns = selectColumns(view.columns(), semantic.includeColumns(), semantic.excludeColumns())
         var columnRange = makeColumnRange(columns)
-        var rowRange = selectRows(view, sem)
+        var rowRange = selectRows(view, semantic)
 
         // create and return the new view
         return makeTableView(view.table(), rowRange, columnRange)
     }
 
-    
     function selectColumns(allColumns, includeColumns, excludeColumns) {
         var columns = []
 
@@ -67,13 +66,13 @@ function makeTableCube(tableView)
         return range;
     }
 
-    function selectRows(view, sem) {
+    function selectRows(view, semantic) {
         var rowRange = makeRange()
 
         // run the query expressions on each row
         view.foreach(function(row, index){
             var columnValueLookup = function(column) { return row[column] }
-            if (sem.isRowSelected(columnValueLookup))
+            if (semantic.isRowSelected(columnValueLookup))
                 rowRange.add(index, 1)
         })
 
