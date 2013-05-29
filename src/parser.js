@@ -247,59 +247,6 @@ var parse = function(lexed){
     return parser.parse(lexed)
 }
 
-function evalExpressionAst(node, lookup) {
-    var stack = new Array()
-    stack.push(0)
-
-    node.visit(function(thenode) {
-        // console.log("visit " + thenode.type)
-        if (thenode.type === AstType.NumberExpression) {
-            // console.log("push " + thenode.value)
-            stack.push(thenode.value)
-        } else if (thenode.type === AstType.VariableExpression) {
-            var value = lookup(thenode.value)
-            // console.log("push " + value)
-            stack.push(value)
-        } else if (thenode.type === AstType.UnaryOperator) {
-            var expression = stack.pop()
-            var result = eval(thenode.operator + "expression")
-            stack.push(result)
-        } else if (thenode.type === AstType.BinaryOperator) {
-            var right = stack.pop()
-            var left = stack.pop()
-            // console.log("pop " + right)
-            // console.log("pop " + left)
-
-            var result
-            switch (thenode.operator) {
-                case ">" : result = left > right; break
-                case "<" : result = left < right; break
-                case "+" : result = left + right; break
-                case "-" : result = left - right; break
-                case "*" : result = left * right; break
-                case "/" : result = left / right; break
-                case ">=" : result = left >= right; break
-                case "<=" : result = left <= right; break
-                case "==" : result = left == right; break
-                default : result = eval("left " + thenode.operator + " right"); break; // slow path!
-            }
-
-            //console.log("push " + result)
-            stack.push(result)
-        }
-    })
-
-    return stack.pop()
-}
-
-function evalExpressionListAst(expressionListNode, lookup) {
-    var results = []
-    for (var i = 0; i < expressionListNode.expressions.length; ++i) {
-        results.push(evalExpressionAst(expressionListNode.expressions[i], lookup))
-    }
-    return results;
-}
-
 function perseQuery(query) {
     var ast  = parse(lex(query))
     return ast
