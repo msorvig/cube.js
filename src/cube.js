@@ -1,10 +1,20 @@
 
+function getJson(url, callback) {
+    var request = new XMLHttpRequest();
+    request.onload = function(e) {
+        if(request.status == 200) {
+            callback(JSON.parse(request.responseText))
+        } else {
+            console.log("getJson: Error opening " + url + " Status: " + request.status)
+        }
+    };
+    request.open("get", url, true);
+    request.send();
+}
+
 function loadData(dataUrl, callback)
 {
-    var data = {}
-    $.getJSON(dataUrl + '/data.json', function(data) {
-        callback(data)        
-    })
+    getJson(dataUrl + '/data.json' , callback)
 }
 
 // Uses a table view as a data source and further filters the data using a query.
