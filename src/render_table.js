@@ -1,5 +1,5 @@
 // view->html converter
-function table2html(destination, view)
+function renderTable(destination, view)
 {
     destination.empty()
 

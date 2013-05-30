@@ -34,7 +34,7 @@
             dataTable.fnDestroy()
 
         var result = cube.select($(inputQuery).val())
-        table2html($(tableDestination), result)
+        renderTable($(tableDestination), result)
         dataTable = $(tableDestination).dataTable()
     }
 
