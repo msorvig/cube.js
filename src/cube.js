@@ -2,7 +2,7 @@
 function getJson(url, callback) {
     var request = new XMLHttpRequest();
     request.onload = function(e) {
-        if(request.status == 200) {
+        if (request.status == 200) {
             callback(JSON.parse(request.responseText))
         } else {
             console.log("getJson: Error opening " + url + " Status: " + request.status)
