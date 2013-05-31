@@ -112,6 +112,9 @@ function evalExpressionAst(node, lookup) {
             var value = lookup(thenode.value)
             // console.log("push " + value)
             stack.push(value)
+        } else if (thenode.type === AstType.StringExpression) {
+            // console.log("push " + thenode.value)
+            stack.push(thenode.value)
         } else if (thenode.type === AstType.UnaryOperator) {
             var expression = stack.pop()
             var result = eval(thenode.operator + "expression")

@@ -8,6 +8,7 @@ var AstType = {                 // Node members for type:
     ExpressionList : "ExpressionList",
     NumberExpression : "NumberExpression",     // value : 0
     VariableExpression : "VariableExpression", // value : ""
+    StringExpression : "StringExpression",     // value : ""
     FunctionCallExpression: "FunctionCallExpression",
 }
 
@@ -73,6 +74,11 @@ function Parser() {
 
     function createVariableExpressionNode(value, tokenRange) {
         return createValueNode(AstType.VariableExpression, value, tokenRange)
+    }
+
+    function createStringExpressionNode(value, tokenRange) {
+        var unquoted = value.substring(1, value.length - 1) // strip quotes (lexer doesn't)
+        return createValueNode(AstType.StringExpression, unquoted, tokenRange)
     }
 
     function createFunctionCallExpressionNode(identifier, tokenRange, expression) {
@@ -153,6 +159,12 @@ function Parser() {
         return createFunctionCallExpressionNode(identifier, identifierRange, expression)
     }
 
+    function parseStringExpression() {
+        var stringExpression = createStringExpressionNode(currentTokenValue(), currentTokenRange())
+        nextToken()
+        return stringExpression
+    }
+
     // parenthesesExpression -> ( expression )
     function parseParenthesesExpression() {
         nextToken() // "("
@@ -211,6 +223,7 @@ function Parser() {
         {
             case Token.Identifier : return parseIdentifierExpression()
             case Token.Number : return parseNumberExpression()
+            case Token.String : return parseStringExpression()
             case "(" : return parseParenthesesExpression()
             case "-" : return parseUnaryOperatorExpression()
             case "+" : return parseUnaryOperatorExpression()

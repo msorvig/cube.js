@@ -12,6 +12,7 @@ var Token = {
     EOF : "eof",
     Identifier : "identifier",  // ABC, cde24545
     Number : "number",          // 5, 9.4
+    String : "string",          // "foo" or 'foo' (includes quotes)
     Operator : "operator"
 }
 
@@ -53,6 +54,10 @@ function Lexer() {
     function isLetter(char) {
         return char.match(/[a-z]/i) // ### ascii only
     }
+
+    function isQuote(char) {
+        return ((char == '"') || (char == "'"))
+    }
         
     function nextToken() {
         // Loop until a new token is found
@@ -67,9 +72,9 @@ function Lexer() {
 
           var char = m_input.charAt(m_inputIndex)
 
-          // Have we built a complete identifier or number? return it.
-          if ((m_mode == Token.Identifier || m_mode == Token.Number) && 
-                !(isLetter(char) || isNumber(char))) {
+          // Have we built a complete identifier, number, or string? return it.
+          if ((m_mode == Token.Identifier || m_mode == Token.Number || m_mode == Token.String) &&
+                !(isLetter(char) || isNumber(char) || isQuote(char))) {
                 m_token = m_mode
                 m_mode = Token.Operator
                 return m_token
@@ -87,8 +92,10 @@ function Lexer() {
                 // Check if we should start building an identifer or number
                 if (isLetter(char))
                     m_mode = Token.Identifier
-                if (isNumber(char))
+                else if (isNumber(char))
                     m_mode = Token.Number
+                else if (isQuote(char))
+                    m_mode = Token.String
             } 
 
             if (m_mode === Token.Operator) {
@@ -115,7 +122,7 @@ function Lexer() {
                     return m_token
                 }
             } else {
-                // Or build identifier or number
+                // Or build identifier, number, or string
                 m_tokenValue += char
                 ++m_inputIndex
             }
