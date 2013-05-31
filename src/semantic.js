@@ -130,9 +130,9 @@ function evalExpressionAst(node, lookup) {
                 case "-" : result = left - right; break
                 case "*" : result = left * right; break
                 case "/" : result = left / right; break
+                case "==" : result = left == right; break
                 case ">=" : result = left >= right; break
                 case "<=" : result = left <= right; break
-                case "==" : result = left == right; break
                 default : result = eval("left " + thenode.operator + " right"); break; // slow path!
             }
 

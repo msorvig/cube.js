@@ -92,11 +92,28 @@ function Lexer() {
             } 
                
             if (m_mode === Token.Operator) {
-                // Return the operator
                 ++m_inputIndex
-                m_tokenValue = char
-                m_token = char
-                return char
+
+                function handleDigraphOperator(value) {
+                    ++m_inputIndex
+                    m_tokenValue = value
+                    m_token = Token.Operator
+                    return m_token
+                }
+
+                // peek ahead for digraph operators
+                if (char == "=" && m_input.charAt(m_inputIndex) == "=") {
+                    return handleDigraphOperator("==")
+                } else if (char == ">" && m_input.charAt(m_inputIndex) == "=") {
+                    return handleDigraphOperator(">=")
+                } else if (char == "<" && m_input.charAt(m_inputIndex) == "=") {
+                    return handleDigraphOperator("<=")
+                } else {
+                    // Return the operator
+                    m_tokenValue = char
+                    m_token = char
+                    return m_token
+                }
             } else {
                 // Or build identifier or number
                 m_tokenValue += char
