@@ -80,7 +80,7 @@ function Lexer() {
                 ++m_inputIndex
                 continue
             }
-               
+
             if (m_mode === Token.Operator) {
                 m_tokenValue = ""
                 m_tokenStart = m_inputIndex
@@ -90,7 +90,7 @@ function Lexer() {
                 if (isNumber(char))
                     m_mode = Token.Number
             } 
-               
+
             if (m_mode === Token.Operator) {
                 ++m_inputIndex
 
