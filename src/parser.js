@@ -126,6 +126,13 @@ function Parser() {
         return precedence
     }
 
+    function parseError(reason) {
+        var token = currentTokenValue()
+        var range = currentTokenRange()
+        nextToken()
+        return createErrorNode("Parse Error: " + reason + " For '" + token + "' At " + range, range)
+    }
+
     // numberExpression -> number
     function parseNumberExpression() {
         var numberExpression = createNumberExpressionNode(currentTokenValue(), currentTokenRange())
@@ -151,7 +158,7 @@ function Parser() {
         nextToken() // "("
         var node = parseExpression()
         if (currentToken() != ")")
-            return new createErrorNode("Expected ')'", currentTokenRange())
+            return parseError("Expected ')'")
         nextToken() // ")"
         return node
     }
@@ -207,7 +214,7 @@ function Parser() {
             case "(" : return parseParenthesesExpression()
             case "-" : return parseUnaryOperatorExpression()
             case "+" : return parseUnaryOperatorExpression()
-            default: return createErrorNode("Invalid Primary Expression token '" + currentToken() + "'", currentTokenRange)
+            default : return parseError("Invalid primary expression token")
         }
     }
 
