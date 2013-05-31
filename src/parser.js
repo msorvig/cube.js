@@ -229,7 +229,12 @@ function Parser() {
     function parseExpressionList() {
         var expressions = []
         while (currentToken() !== Token.EOF) {
+            var pos = m_position
             expressions.push(parseExpression())
+            if (pos == m_position) {
+                console.log("Parser error: stuck on token " + currentTokenValue())
+                break; // break to prevent infinite loop
+            }
         }
         return createExpressionListNode(expressions)
     }
