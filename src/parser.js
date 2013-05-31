@@ -165,11 +165,11 @@ function Parser() {
 
     function parseBinaryOperatorRight(expressionPrecedence, left) {
         while (1) {
-            var precedence = tokenPrecedence(currentToken())
+            var precedence = tokenPrecedence(currentTokenValue())
             if (precedence < expressionPrecedence)
                 return left
 
-            var operator = currentToken()
+            var operator = currentTokenValue()
             var operatorRange = currentTokenRange()
             nextToken()
 
@@ -177,7 +177,7 @@ function Parser() {
             if (right.type === Error)
                 return right
 
-            var nextPrecedence = tokenPrecedence(currentToken())
+            var nextPrecedence = tokenPrecedence(currentTokenValue())
             if (precedence < nextPrecedence) {
                 right = parseBinaryOperatorRight(precedence + 1, right)
                 if (right.type === Error)
