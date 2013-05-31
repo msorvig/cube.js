@@ -105,7 +105,10 @@ function evalExpressionAst(node, lookup) {
 
     node.visit(function(thenode) {
         // console.log("visit " + thenode.type)
-        if (thenode.type === AstType.NumberExpression) {
+        if (thenode.type === AstType.Error) {
+            // console.log("push Nan)
+            stack.push(NaN)
+        } else if (thenode.type === AstType.NumberExpression) {
             // console.log("push " + thenode.value)
             stack.push(thenode.value)
         } else if (thenode.type === AstType.VariableExpression) {
