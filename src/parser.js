@@ -118,11 +118,11 @@ function Parser() {
     }
 
     function tokenPrecedence(token) {
-        if (token === undefined)
-            return -1
-        var precedence = m_tokenPredecence[token]
+        var precedence = -1
+        if (token !== undefined)
+            precedence = m_tokenPredecence[token]
         if (precedence === undefined)
-            return -1
+            precedence = -1
         return precedence
     }
 
