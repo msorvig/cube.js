@@ -111,6 +111,8 @@ function Lexer() {
                 // peek ahead for digraph operators
                 if (char == "=" && m_input.charAt(m_inputIndex) == "=") {
                     return handleDigraphOperator("==")
+                } else if (char == "!" && m_input.charAt(m_inputIndex) == "=") {
+                    return handleDigraphOperator("!=")
                 } else if (char == ">" && m_input.charAt(m_inputIndex) == "=") {
                     return handleDigraphOperator(">=")
                 } else if (char == "<" && m_input.charAt(m_inputIndex) == "=") {
