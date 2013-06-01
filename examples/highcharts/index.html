@@ -1,0 +1,85 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+
+    <script src="../../src/table.js" ></script>
+    <script src="../../src/range.js" ></script>
+    <script src="../../src/tableview.js" ></script>
+    <script src="../../src/lexer.js" ></script>
+    <script src="../../src/parser.js" ></script>
+    <script src="../../src/semantic.js" ></script>
+    <script src="../../src/cube.js" ></script>
+    <script src="../../src/render_table.js" ></script>
+    <script src="../../src/viewnavigation.js" ></script>
+    <script src="../../src/render_highcharts.js" ></script>
+
+
+    <script type="text/javascript">
+
+    function makeChart(title, categories, series) { 
+        $('#chart').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: title
+            },
+            xAxis: {
+                categories: categories,
+                title: {
+                    text: 'Test'
+                }
+
+            },
+            yAxis: {
+                title: {
+                    text: 'Test'
+                }
+            },
+			series : series
+        });
+    }
+
+    var fullView = undefined
+    var cube = undefined
+    function dataReady(data)
+    {
+        
+        fullView = makeTableView(makeTable(data))
+        var helpContainer = document.getElementById("help")
+        helpContainer.innerHTML = "Dimensions: <b>" + dimensionIds(fullView).join(" ") + "</b> Measures: <b>" + measureIds(fullView).join(" ") + "</b>"
+        cube = new makeCube(fullView)
+        queryChanged()
+    }
+
+    var chartContainer = undefined
+    function queryChanged()
+    {
+        chartContainer = document.getElementById("chart")
+        var query = document.getElementById("inputQuery").value
+        var view = cube.select(query)
+        var renderer = makeHighchartsRenderer(view)
+        makeChart(renderer.title(), renderer.categories(), renderer.series())
+
+    }
+
+    loadData(".", dataReady)
+
+    </script>
+</head>
+
+<body>
+    <div id="help">Possible Query Terms:</div>
+    Query:
+
+    <input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
+
+    <div id="chart" style="width:100%; height:400px;"></div>
+
+</body>
+
+</html>

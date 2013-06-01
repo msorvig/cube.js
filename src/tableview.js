@@ -5,14 +5,18 @@ function makeTableView(inTable, rowRange, columnRange) {
     var m_table = inTable
     var m_rowRange = rowRange || makeRange(0, m_table.rowCount())
     var m_columnRange = columnRange || makeRange(0, m_table.fieldCount())
-    var columnIds = columns()
+    var m_columnIds = columnIds()
 
     function table() {
         return m_table
     }
 
-    function columns() {
+    function columnIds() {
         return columnAttributes("id")
+    }
+
+    function columns() {
+        return m_columnRange.map(function(index) { return m_table.field(index) })
     }
 
     function columnAttributes(attribute) {
@@ -36,7 +40,7 @@ function makeTableView(inTable, rowRange, columnRange) {
             //    row[m_table.fieldIds()[index]] = m_table.cell(index, ),
             //})
 
-            columnIds.forEach(function(columnId){
+            m_columnIds.forEach(function(columnId){
                 row[columnId] = m_table.cell(index, columnId)
             })
             
@@ -46,7 +50,8 @@ function makeTableView(inTable, rowRange, columnRange) {
 
     return {
        "table" : table,
-       "columns" : columns,
+       "columns" : columnIds,
+       "columns2" : columns,
        "columnAttributes" : columnAttributes,
        "lookupColumn" : lookupColumn,
        "foreach" : foreach,

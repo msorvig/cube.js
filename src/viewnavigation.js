@@ -3,14 +3,12 @@ function dimensionIds(view) {
     return view.columns2()
         .filter(function(column) { return column.kind == "dimension" })
         .map(function(dimension) {return dimension.id})
-        .join(" ")
 }
 
 function measureIds(view) {
     return view.columns2()
         .filter(function(column) { return column.kind == "measure" })
         .map(function(measure) {return measure.id})
-        .join(" ")
 }
 
 
@@ -50,10 +48,23 @@ var m_view = view
         })
         return values
     }
+
+    function values(columnId) {
+        var values = []
+        m_view.foreach (function(row) {
+            var value = row[columnId]
+            values.push(value)
+        })
+        return values
+    }
+
+
     return {
+        select : select,
+        forEachSubView : forEachSubView,
+        values : values,
         uniqueValues : uniqueValues,
         subViews : subViews,
-        select : select,
     }
 
 }
