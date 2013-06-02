@@ -122,18 +122,27 @@ test("forEach", function() {
 })
 
 test("map", function() {
-    var rangeBuilder = RangeBuilder(0, 10)
-    var incremented = rangeBuilder.range().map(function(index) { return index + 1 })
+    var range = RangeBuilder(0, 10).range()
+    var incremented = range.map(function(index) { return index + 1 })
     equal(incremented.length, 10)
     equal(incremented[0], 1)
     equal(incremented[5], 6)
 })
 
 test("filter", function() {
-    var rangeBuilder = RangeBuilder(0, 10)
-    var selected = rangeBuilder.range().filter(function(index) { return index == 6})
+    var range = RangeBuilder(0, 10).range()
+    var selected = range.filter(function(index) { return index == 6})
     equal(selected.length, 1)
     equal(selected[0], 6)
 })
+
+test("filtered", function() {
+    var range = RangeBuilder(0, 10).range()
+    var filtered = range.filtered(function(index) { return index == 6 })
+    equal(filtered.contains(5), false)
+    equal(filtered.contains(6), true)
+    equal(filtered.contains(7), false)
+})
+
 
 

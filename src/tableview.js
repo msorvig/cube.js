@@ -48,6 +48,48 @@ function makeTableView(inTable, rowRange, columnRange) {
         })
     }
 
+    function forEachSubView(columnId, func) {
+        var seenValues = {}
+        foreach (function(row) {
+            var key = row[columnId]
+            if (!(key in seenValues)) {
+                seenValues[key] = true
+                var makeView = function() {
+                    var subRange = m_rowRange.filtered(function(rowIndex){
+                        return (m_table.cell(rowIndex, columnId) == key)
+                    })
+                    return makeTableView(m_table, subRange, m_columnRange)
+                }
+                func(key, makeView)
+            }
+        })
+    }
+
+    function subViews(columnId) {
+        var subViews = {}
+        forEachSubView(columnId, function(key, makeView){
+            subViews[key] = makeView()
+        })
+        return subViews
+    }
+
+    function uniqueValues(columnId) {
+        var values = []
+        forEachSubView(columnId, function(value){
+            values.push(value)
+        })
+        return values
+    }
+
+    function values(columnId) {
+        var values = []
+        foreach (function(row) {
+            var value = row[columnId]
+            values.push(value)
+        })
+        return values
+    }
+
     return {
        "table" : table,
        "columns" : columnIds,
@@ -55,5 +97,9 @@ function makeTableView(inTable, rowRange, columnRange) {
        "columnAttributes" : columnAttributes,
        "lookupColumn" : lookupColumn,
        "foreach" : foreach,
+       forEachSubView : forEachSubView,
+       values : values,
+       uniqueValues : uniqueValues,
+       subViews : subViews,
     }
 }

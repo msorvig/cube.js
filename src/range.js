@@ -56,6 +56,15 @@ function Range() {
         return array
     }
 
+    function filtered(prediacte) {
+        var builder = RangeBuilder()
+        forEach (function(index) {
+            if (prediacte(index))
+                builder.add(index, 1)
+        })
+        return builder.range()
+    }
+
     function toString() {
         return m_range.toString()
     }
@@ -66,10 +75,10 @@ function Range() {
         "forEach" : forEach,
         "map" : map,
         "filter" : filter,
+        "filtered" : filtered,
         "toString" : toString,
     }
 }
-
 
 function RangeBuilder() {
     if (arguments.length > 2)
