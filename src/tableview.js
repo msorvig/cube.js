@@ -3,8 +3,8 @@
 // restrict which rows and columns will be visible.
 function makeTableView(inTable, rowRange, columnRange) {
     var m_table = inTable
-    var m_rowRange = rowRange || makeRange(0, m_table.rowCount())
-    var m_columnRange = columnRange || makeRange(0, m_table.fieldCount())
+    var m_rowRange = rowRange || Range(0, m_table.rowCount())
+    var m_columnRange = columnRange || Range(0, m_table.fieldCount())
     var m_columnIds = columnIds()
 
     function table() {

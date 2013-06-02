@@ -17,11 +17,11 @@ function makeTestTable()
 
 test("rows", function() {
     var table = makeTestTable()
-    var range = makeRange()
-    range.add(0, 1)
-    range.add(2, 1)
+    var rangeBuilder = RangeBuilder()
+    rangeBuilder.add(0, 1)
+    rangeBuilder.add(2, 1)
 
-    var tableView = makeTableView(table, range)
+    var tableView = makeTableView(table, rangeBuilder.range())
 
     tableView.foreach(function(row, index){
         deepEqual(row, table.row(index))
@@ -31,10 +31,10 @@ test("rows", function() {
 
 test("columns", function() {
     var table = makeTestTable()
-    var range = makeRange()
-    range.add(1, 1) // select 2nd column
+    var rangeBuilder = RangeBuilder()
+    rangeBuilder.add(1, 1) // select 2nd column
 
-    var tableView = makeTableView(table, undefined, range)
+    var tableView = makeTableView(table, undefined, rangeBuilder.range())
 
     tableView.foreach(function(row, index) {
         var filteredRow = { "Bar" : table.row(index).Bar } // select 2nd column

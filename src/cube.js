@@ -69,24 +69,24 @@ function makeTableCube(tableView)
 
     // columnId -> columnIndex
     function makeColumnRange(columnIds) {
-        var range = makeRange()
+        var rangeBuilder = RangeBuilder()
         columnIds.forEach(function(id){
-            range.add(view.lookupColumn(id), 1)
+            rangeBuilder.add(view.lookupColumn(id), 1)
         })
-        return range;
+        return rangeBuilder.range();
     }
 
     function selectRows(view, semantic) {
-        var rowRange = makeRange()
+        var rangeBuilder = RangeBuilder()
 
         // run the query expressions on each row
         view.foreach(function(row, index){
             var columnValueLookup = function(column) { return row[column] }
             if (semantic.isRowSelected(columnValueLookup))
-                rowRange.add(index, 1)
+                rangeBuilder.add(index, 1)
         })
 
-        return rowRange
+        return rangeBuilder.range()
     }
 
     return { "select" : select }
