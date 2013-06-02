@@ -14,41 +14,14 @@
     <script src="../../src/semantic.js" ></script>
     <script src="../../src/cube.js" ></script>
     <script src="../../src/render_table.js" ></script>
-    <script src="../../src/viewnavigation.js" ></script>
     <script src="../../src/render_highcharts.js" ></script>
 
-
     <script type="text/javascript">
-
-    function makeChart(title, categories, series) { 
-        $('#chart').highcharts({
-            chart: {
-                type: 'bar'
-            },
-            title: {
-                text: title
-            },
-            xAxis: {
-                categories: categories,
-                title: {
-                    text: 'Test'
-                }
-
-            },
-            yAxis: {
-                title: {
-                    text: 'Test'
-                }
-            },
-			series : series
-        });
-    }
 
     var fullView = undefined
     var cube = undefined
     function dataReady(data)
     {
-        
         fullView = makeTableView(makeTable(data))
         var helpContainer = document.getElementById("help")
         helpContainer.innerHTML = "Dimensions: <b>" + dimensionIds(fullView).join(" ") + "</b> Measures: <b>" + measureIds(fullView).join(" ") + "</b>"
@@ -56,15 +29,11 @@
         queryChanged()
     }
 
-    var chartContainer = undefined
     function queryChanged()
     {
-        chartContainer = document.getElementById("chart")
         var query = document.getElementById("inputQuery").value
-        var view = cube.select(query)
-        var renderer = makeHighchartsRenderer(view)
-        makeChart(renderer.title(), renderer.categories(), renderer.series())
-
+		var target = $('#chart')
+        makeHighChart(target, cube.select(query))
     }
 
     loadData(".", dataReady)
@@ -73,7 +42,7 @@
 </head>
 
 <body>
-    <div id="help">Possible Query Terms:</div>
+    <div id="help"></div>
     Query:
 
     <input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
