@@ -1,7 +1,7 @@
 // view->html converter
 function renderTable(destination, view)
 {
-    destination.empty()
+    $(destination).empty()
 
     // header
     var head = $("<thead>")

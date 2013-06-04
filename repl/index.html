@@ -45,14 +45,18 @@
     }
 
     function appendTextLine(text) {
-        var output = document.getElementById(outputStr)
-        var span = document.createElement('div');
         var pre = document.createElement('pre');
-        span.className = "outputItem"
-        span.appendChild(pre)
         pre.className = "outputItemPre"
         pre.appendChild(document.createTextNode(text))
-        output.appendChild(span);
+        appendNode(pre)
+    }
+
+    function appendNode(node) {
+        var output = document.getElementById(outputStr)
+        var div = document.createElement('div');
+        div.className = "outputItem"
+        $(div).append(node)
+        output.appendChild(div);
         output.scrollTop = output.scrollHeight;
     }
 
@@ -61,6 +65,7 @@
         getInputText : getInputText,
         setInputPlaceholderText : setInputPlaceholderText,
         appendTextLine : appendTextLine,
+        appendNode : appendNode,
     })
 
 </script>       

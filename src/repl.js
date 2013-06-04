@@ -1,6 +1,6 @@
 function Repl(env) {
     var commands = ["help", "load", "select", "print", "plot"] // keep in sync with help text!
-    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : false,  "plot" : false }
+    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true,  "plot" : true }
     function printHelp(){
         var text = [
             ["Available commands:" ],
@@ -13,18 +13,64 @@ function Repl(env) {
         text.forEach(function(textLine) { env.appendTextLine(textLine) })
     }
 
+    var cube = {}
+    var view = {}
+
+    function load(filePath) {
+        function loadComplete(data) {
+            env.appendTextLine("Load OK: "+ filePath)
+            cube = makeCube(makeTableView(makeTable(data)))
+            select("")
+        }
+        function error(code) {
+            env.appendTextLine(filePath + ": " + code )
+        }
+
+        syncGetJson(filePath, loadComplete, error)
+    }
+
+    function select(query) {
+        view = cube.select(query)
+        env.appendTextLine("Columns " + view.columns().join(" "))
+        env.appendTextLine("Rows " + view.rowCount())
+    }
+
+    function print(query) {
+        var tableNode = $("<div>")
+        renderTable(tableNode, cubeSelect(view, query))
+        env.appendNode(tableNode)
+    }
+
+    function plot(query) {
+        var tableNode = $("<div>")
+        makeHighChart(tableNode, cubeSelect(view,query))
+        env.appendNode(tableNode)
+    }
+
     function switchCommand(commandLine) {
         if (commandLine.indexOf("help") == 0) {
             printHelp()
         } else if (commandLine.indexOf("'help'") == 0) {
             env.appendTextLine("Try help (without the quotes)")
+        } else if (commandLine.indexOf("load") == 0) {
+            var filePath = commandLine.substring(5) // everything after "load "
+            load(filePath)
+        } else if (commandLine.indexOf("select") == 0) {
+            var query = commandLine.substring(7)
+            select(query)
+        } else if (commandLine.indexOf("print") == 0) {
+            var query = commandLine.substring(6)
+            print(query)
+        } else if (commandLine.indexOf("plot") == 0) {
+            var query = commandLine.substring(5)
+            plot(query)
         } else {
             env.appendTextLine("Unknown command: " + commandLine)
         }
     }
 
     function processCommand(commandLine) {
-        env. setInputPlaceholderText("") // remove help message after first input
+        env.setInputPlaceholderText("") // remove help message after first input
 
         historyIndex = -1 // reset history navigation
         pushHistory(commandLine)

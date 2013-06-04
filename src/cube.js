@@ -1,15 +1,26 @@
 
-function getJson(url, callback) {
+function getJson_impl(url, callback, error, async) {
     var request = new XMLHttpRequest();
     request.onload = function(e) {
         if (request.status == 200) {
             callback(JSON.parse(request.responseText))
         } else {
             console.log("getJson: Error opening " + url + " Status: " + request.status)
+            if (error != undefined) {
+                error(request.status)
+            }
         }
     };
-    request.open("get", url, true);
+    request.open("get", url, async);
     request.send();
+}
+
+function getJson(url, callback, error) {
+    getJson_impl(url, callback, error, true)
+}
+
+function syncGetJson(url, callback, error) {
+    getJson_impl(url, callback, error, false)
 }
 
 function loadData(dataUrl, callback)
@@ -95,4 +106,8 @@ function makeTableCube(tableView)
 function makeCube(view)
 {
     return makeTableCube(view)
+}
+
+function cubeSelect(view, query) {
+    return makeCube(view).select(query)
 }

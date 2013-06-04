@@ -90,6 +90,14 @@ function makeTableView(inTable, rowRange, columnRange) {
         return values
     }
 
+    function rowCount() {
+        var count = 0
+        foreach(function(row) {
+            ++count
+        })
+        return count
+    }
+
     return {
        "table" : table,
        "columns" : columnIds,
@@ -101,5 +109,6 @@ function makeTableView(inTable, rowRange, columnRange) {
        values : values,
        uniqueValues : uniqueValues,
        subViews : subViews,
+       rowCount : rowCount,
     }
 }
