@@ -1,0 +1,89 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+
+    <link rel="stylesheet" href="./style.css" />
+
+    <script src="../src/table.js" ></script>
+    <script src="../src/range.js" ></script>
+    <script src="../src/tableview.js" ></script>
+    <script src="../src/lexer.js" ></script>
+    <script src="../src/parser.js" ></script>
+    <script src="../src/semantic.js" ></script>
+    <script src="../src/cube.js" ></script>
+    <script src="../src/render_table.js" ></script>
+    <script src="../src/render_highcharts.js" ></script>
+    <script src="../src/repl.js" ></script>
+
+    <script type="text/javascript">
+
+    var outputStr = "output"
+    var inputStr = "input"
+
+    function setInputFocus() {
+        var input = document.getElementById(inputStr)
+        input.focus()
+    }
+
+    function setInputText(text) {
+        var input = document.getElementById(inputStr)
+        input.value = text
+    }
+
+    function getInputText() {
+        var input = document.getElementById(inputStr)
+        return input.value
+    }
+
+    function setInputPlaceholderText(text) {
+        var input = document.getElementById(inputStr)
+        input.placeholder = text
+    }
+
+    function appendTextLine(text) {
+        var output = document.getElementById(outputStr)
+        var span = document.createElement('div');
+        var pre = document.createElement('pre');
+        span.className = "outputItem"
+        span.appendChild(pre)
+        pre.className = "outputItemPre"
+        pre.appendChild(document.createTextNode(text))
+        output.appendChild(span);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    var repl = Repl({
+        setInputText : setInputText,
+        getInputText : getInputText,
+        setInputPlaceholderText : setInputPlaceholderText,
+        appendTextLine : appendTextLine,
+    })
+
+</script>       
+
+</head>
+    <body onload="setInputFocus();">
+        
+        <div class="header row">
+            <h2>Cube.js Command Line</h2>
+        </div>
+
+        <div class="body row scroll-y" id="output">
+
+        </div>
+
+        <div class="footer row">
+           <input id="input" type = text; style="width: 100%;" 
+                placeholder="Command or 'help' to list available commands"; 
+                onchange="repl.textChanged()"
+                onkeydown="repl.keyDown(event)"
+            </input>
+        </div>
+    </body>
+
+
+</html>
