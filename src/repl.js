@@ -27,7 +27,7 @@ function Repl(env) {
         env. setInputPlaceholderText("") // remove help message after first input
 
         historyIndex = -1 // reset history navigation
-        history.push(commandLine)
+        pushHistory(commandLine)
 
         typedPrefix = "" // reset tab completion
 
@@ -42,8 +42,27 @@ function Repl(env) {
         processCommand(value)
     }
 
-    var history  = []
+    var history = []
     var historyIndex = -1
+    var maxRestoredhistoryLength = 50
+
+    // load previous history
+    if (typeof(localStorage) != "undefined" ) {
+        var json = localStorage.getItem("history") || []
+        history = JSON.parse(json);
+        // limit history to maxRestoredhistoryLength
+        history.splice(maxRestoredhistoryLength, history.length - maxRestoredhistoryLength)
+    }
+
+    function pushHistory(commandLine) {
+        history.push(commandLine)
+        // store history
+        if (typeof(localStorage) != "undefined" ) {
+            try { localStorage.setItem("history", JSON.stringify(history)) }
+            catch (e) { if (e == QUOTA_EXCEEDED_ERR) localStorage.removeItem("history") }
+        }
+    }
+
     function navigateHistory(delta) {
         if (history.length == 0)
             return // no history
