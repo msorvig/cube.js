@@ -33,9 +33,8 @@
         if (dataTable !== undefined)
             dataTable.fnDestroy()
 
-        var result = cube.select($(inputQuery).val())
-        renderTable($(tableDestination), result)
-        dataTable = $(tableDestination).dataTable()
+        var view = cube.select($(inputQuery).val())
+        $(tableDestination).html(createTable(view))
     }
 
     loadData(".", dataReady)
@@ -48,7 +47,7 @@
 
     <input id="inputQuery" style="width: 80%; margin-top:15px; margin-bottom:15px" onchange="queryChanged()"> </input>
 
-    <table id="tableDestination"></table>
+    <div id="tableDestination"></div>
 
 </body>
 

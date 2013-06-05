@@ -33,7 +33,7 @@
     {
         var query = document.getElementById("inputQuery").value
 		var target = $('#chart')
-        makeHighChart(target, cube.select(query))
+        target.html(createHighChart(cube.select(query)))
     }
 
     loadData(".", dataReady)

@@ -1,11 +1,9 @@
 // view->html converter
-function renderTable(destination, view)
+function createTable(view)
 {
-    $(destination).empty()
-
     // header
-    var head = $("<thead>")
-    destination.append(head)
+    var table = $("<table id=letable>")
+    var head = table.append($("<thead>"))
     var tr = $("<tr/>¨")
     head.append(tr)
     view.columns().forEach(function(value) {
@@ -15,9 +13,10 @@ function renderTable(destination, view)
     // rows
     view.foreach(function(row, index) {
         var tr = $("<tr/>")
-        destination.append(tr)
+        table.append(tr)
         view.columns().forEach(function(header) {
             tr.append("<td>" + row[header] + "</td>")
         })
     })
+    return table
 }

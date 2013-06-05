@@ -36,15 +36,11 @@ function Repl(env) {
     }
 
     function print(query) {
-        var tableNode = $("<div>")
-        renderTable(tableNode, cubeSelect(view, query))
-        env.appendNode(tableNode)
+        env.appendNode(createTable(cubeSelect(view, query)))
     }
 
     function plot(query) {
-        var tableNode = $("<div>")
-        makeHighChart(tableNode, cubeSelect(view,query))
-        env.appendNode(tableNode)
+        env.appendNode(createHighChart(cubeSelect(view, query)))
     }
 
     function switchCommand(commandLine) {

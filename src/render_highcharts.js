@@ -58,9 +58,9 @@ function HighchartsDataProvider(view) {
     }
 }
 
-function makeHighChart(target, view) {
+function createHighChart(view) {
     var dataProvider = HighchartsDataProvider(view)
-
+    var target = $("<div>")
     target.highcharts({
         chart: {
             type: 'bar'
@@ -82,6 +82,7 @@ function makeHighChart(target, view) {
         },
         series : dataProvider.series()
     });
+    return target
 }
 
 
