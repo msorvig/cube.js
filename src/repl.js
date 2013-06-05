@@ -96,8 +96,8 @@ function Repl(env) {
     if (typeof(localStorage) != "undefined" ) {
         var json = localStorage.getItem("history") || []
         history = JSON.parse(json);
-        // limit history to maxRestoredhistoryLength
-        history.splice(maxRestoredhistoryLength, history.length - maxRestoredhistoryLength)
+        // limit the number of history items
+        history.splice(0, Math.max(0, history.length - maxRestoredhistoryLength))
     }
 
     function pushHistory(commandLine) {
