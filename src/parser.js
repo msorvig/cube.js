@@ -211,8 +211,8 @@ function Parser() {
 /*
     function parseUnaryOperatorExpression(tokenStream) {
         return createUnaryOperatorNode(
-            tokenStream.token(), tokenStream.tokenRange(), 
-            parsePrimaryExpression(s.nextToken())
+            parsePrimaryExpression(tokenStream.next(),
+            tokenStream.token(), tokenStream.tokenRange())
     }
 */
 
