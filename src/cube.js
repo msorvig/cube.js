@@ -53,8 +53,11 @@ function makeTableCube(tableView)
             console.log(semantic.errorExpressions()[i])
         }
 
-        // create column and row ranges with selected columns/rows
-        var columns = selectColumns(view.columns(), semantic.includeColumns(), semantic.excludeColumns())
+        // create column and row ranges with selected columns/rows, making sure
+        // there is at least one dimension ans one measure
+        var dimensions = selectColumns(view.dimensionIds(), semantic.includeColumns(), semantic.excludeColumns())
+        var measures = selectColumns(view.measureIds(), semantic.includeColumns(), semantic.excludeColumns())
+        var columns = dimensions.concat(measures)
         var columnRange = makeColumnRange(columns)
         var rowRange = selectRows(view, semantic)
 
@@ -62,11 +65,18 @@ function makeTableCube(tableView)
         return makeTableView(view.table(), rowRange, columnRange)
     }
 
+    function intersection(array1, array2) {
+        return array1.filter(function(item) {
+            return (array2.indexOf(item) != -1)
+        })
+    }
+
     function selectColumns(allColumns, includeColumns, excludeColumns) {
         var columns = []
 
-        // start with includeColumns from the query or all if includeColumns is empty.
-        if (includeColumns.length > 0)
+        // start with the included columns, or all columns if
+        // none are in the include array.
+        if (intersection(allColumns, includeColumns).length > 0)
             columns = includeColumns
         else
             columns = allColumns

@@ -27,6 +27,18 @@ function makeTableView(inTable, rowRange, columnRange) {
         return m_columnRange.filter(function(index) { return m_table.field(index).id == id })[0]
     }
 
+    function dimensionIds() {
+        return columns()
+            .filter(function(column) { return column.kind == "dimension" })
+            .map(function(dimension) {return dimension.id})
+    }
+
+    function measureIds() {
+        return columns()
+            .filter(function(column) { return column.kind == "measure" })
+            .map(function(measure) {return measure.id})
+    }
+
     function foreach(functor) {
         m_rowRange.forEach(function(index) {
             if (index >= m_table.rowCount()) {
@@ -104,6 +116,8 @@ function makeTableView(inTable, rowRange, columnRange) {
        "columns2" : columns,
        "columnAttributes" : columnAttributes,
        "lookupColumn" : lookupColumn,
+       "dimensionIds" : dimensionIds,
+       "measureIds" : measureIds,
        "foreach" : foreach,
        forEachSubView : forEachSubView,
        values : values,

@@ -1,19 +1,6 @@
 
-
-function dimensionIds(view) {
-    return view.columns2()
-        .filter(function(column) { return column.kind == "dimension" })
-        .map(function(dimension) {return dimension.id})
-}
-
-function measureIds(view) {
-    return view.columns2()
-        .filter(function(column) { return column.kind == "measure" })
-        .map(function(measure) {return measure.id})
-}
-
 function HighchartsDataProvider(view) {
-    var m_dimensions = dimensionIds(view)
+    var m_dimensions = view.dimensionIds()
     if (m_dimensions.length < 1) {
         console.log("HighchartsRenderer needs two dimentions")
     }
@@ -25,7 +12,7 @@ function HighchartsDataProvider(view) {
     var seriesDimension = m_dimensions[1];
 
     // Use the first measure by default
-    var m_measures = measureIds(view)
+    var m_measures = view.measureIds()
     var m_measure = m_measures[0];
 
     function title() {
