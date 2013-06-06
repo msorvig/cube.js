@@ -31,7 +31,7 @@ function Repl(env) {
 
     function select(query) {
         view = cube.select(query)
-        env.appendTextLine("Columns " + view.columns().join(" "))
+        env.appendTextLine("Columns " + view.columnids().join(" "))
         env.appendTextLine("Rows " + view.rowCount())
     }
 
@@ -90,10 +90,12 @@ function Repl(env) {
 
     // load previous history
     if (typeof(localStorage) != "undefined" ) {
-        var json = localStorage.getItem("history") || []
-        history = JSON.parse(json);
-        // limit the number of history items
-        history.splice(0, Math.max(0, history.length - maxRestoredhistoryLength))
+        var json = localStorage.getItem("history")
+		if (json !== null) {
+			history = JSON.parse(json);
+        	// limit the number of history items
+        	history.splice(0, Math.max(0, history.length - maxRestoredhistoryLength))
+		}
     }
 
     function pushHistory(commandLine) {

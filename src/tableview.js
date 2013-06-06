@@ -1,42 +1,50 @@
 
 // A View provides a window to a table, using two Ranges to
 // restrict which rows and columns will be visible.
-function makeTableView(inTable, rowRange, columnRange) {
+function makeTableView(inTable, rowRange, inColumns) {
     var m_table = inTable
     var m_rowRange = rowRange || Range(0, m_table.rowCount())
-    var m_columnRange = columnRange || Range(0, m_table.fieldCount())
-    var m_columnIds = columnIds()
+    var m_columnIndexses = inColumns || range(0, m_table.fieldCount())  // array of ordered column indexes into the table columns [2, 1, ...]
+    var m_columnIds = columnAttributes("id")   		 			    // array of ordered column ids ["Bar", "Foo", ..]
+
+	function range(begin, end) {
+		var array = []
+		for (var i = begin; i < end; ++i) {
+			array.push(i)
+		}
+		return array;
+	}
 
     function table() {
         return m_table
     }
 
     function columnIds() {
-        return columnAttributes("id")
+        return m_columnIds;
     }
 
     function columns() {
-        return m_columnRange.map(function(index) { return m_table.field(index) })
+        return m_columnIndexses.map(function(index) { return m_table.field(index) })
     }
 
     function columnAttributes(attribute) {
-        return m_columnRange.map(function(index) { return m_table.field(index)[attribute] })
+        return m_columnIndexses.map(function(index) { return m_table.field(index)[attribute] })
     }
 
     function lookupColumn(id) {
-        return m_columnRange.filter(function(index) { return m_table.field(index).id == id })[0]
+        return m_columnIndexses.filter(function(index) { return m_table.field(index).id == id })[0]
     }
 
     function dimensionIds() {
         return columns()
             .filter(function(column) { return column.kind == "dimension" })
-            .map(function(dimension) {return dimension.id})
+            .map(function(column) { return column.id })
     }
 
     function measureIds() {
         return columns()
             .filter(function(column) { return column.kind == "measure" })
-            .map(function(measure) {return measure.id})
+            .map(function(column) { return column.id })
     }
 
     function foreach(functor) {
@@ -70,7 +78,7 @@ function makeTableView(inTable, rowRange, columnRange) {
                     var subRange = m_rowRange.filtered(function(rowIndex){
                         return (m_table.cell(rowIndex, columnId) == key)
                     })
-                    return makeTableView(m_table, subRange, m_columnRange)
+                    return makeTableView(m_table, subRange, m_columnIndexses)
                 }
                 func(key, makeView)
             }
@@ -112,8 +120,8 @@ function makeTableView(inTable, rowRange, columnRange) {
 
     return {
        "table" : table,
-       "columns" : columnIds,
-       "columns2" : columns,
+       "columns" : columns,
+       "columnIds" : columnIds,
        "columnAttributes" : columnAttributes,
        "lookupColumn" : lookupColumn,
        "dimensionIds" : dimensionIds,

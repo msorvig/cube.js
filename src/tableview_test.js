@@ -31,10 +31,9 @@ test("rows", function() {
 
 test("columns", function() {
     var table = makeTestTable()
-    var rangeBuilder = RangeBuilder()
-    rangeBuilder.add(1, 1) // select 2nd column
+	var columns = [1] // select 2nd column
 
-    var tableView = makeTableView(table, undefined, rangeBuilder.range())
+    var tableView = makeTableView(table, undefined, columns)
 
     tableView.foreach(function(row, index) {
         var filteredRow = { "Bar" : table.row(index).Bar } // select 2nd column

@@ -89,6 +89,14 @@ function makeTable(ids, labels, kinds) {
         )
     }
 
+    function indexOfField(fieldId) {
+        return table.schema.fields.forEach(function(field, index){
+            if (field.id == fieldId)
+                return index;
+        })
+        return -1
+    }
+
     function cell(row, field) {
         return table.rows[row][field]
     }

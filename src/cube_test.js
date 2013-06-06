@@ -1,8 +1,10 @@
 function makeTestTable()
 {
     var ids = ["Foo", "Bar", "Baz"]
+    var labels = ["Foo", "Bar", "Baz"]
+    var kinds = ["dimension", "dimension", "measure"]
 
-    var table = makeTable(ids)
+    var table = makeTable(ids, labels, kinds)
 
     var rows = [ { Foo: 1, Bar : "A", Baz : 3.14 },
                  { Foo: 2, Bar : "B", Baz : 2.71 },

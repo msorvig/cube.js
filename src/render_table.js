@@ -6,7 +6,7 @@ function createTable(view)
     var head = table.append($("<thead>"))
     var tr = $("<tr/>¨")
     head.append(tr)
-    view.columns().forEach(function(value) {
+    view.columnIds().forEach(function(value) {
         tr.append("<th>" + value + "</th>")
     })
     
@@ -14,7 +14,7 @@ function createTable(view)
     view.foreach(function(row, index) {
         var tr = $("<tr/>")
         table.append(tr)
-        view.columns().forEach(function(header) {
+        view.columnIds().forEach(function(header) {
             tr.append("<td>" + row[header] + "</td>")
         })
     })
