@@ -11,11 +11,11 @@ function createTable(view)
     })
     
     // rows
-    view.foreach(function(row, index) {
+    view.foreach(function(index) {
         var tr = $("<tr/>")
         table.append(tr)
         view.columnIds().forEach(function(header) {
-            tr.append("<td>" + row[header] + "</td>")
+            tr.append("<td>" + view.row(index)[header] + "</td>")
         })
     })
     return table

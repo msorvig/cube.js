@@ -31,7 +31,7 @@ function Repl(env) {
 
     function select(query) {
         view = cube.select(query)
-        env.appendTextLine("Columns " + view.columnids().join(" "))
+        env.appendTextLine("Columns " + view.columnIds().join(" "))
         env.appendTextLine("Rows " + view.rowCount())
     }
 

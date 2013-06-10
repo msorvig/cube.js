@@ -49,6 +49,18 @@ test("query", function() {
     selectView.foreach(function(row, index) {
         equal(row["Foo"], undefined)
     })
+})
+
+test("cubes", function() {
     
+    var cube = makeCube(makeTableView(makeTestTable()))
+    ok(cube)
+
+    deepEqual(cube.subCubes([],["A","B","C"]), [["A"], ["B"], ["C"]])
+    deepEqual(cube.subCubes(["A"],["A","B","C"]), [["A","B"],["A","C"]])
+    deepEqual(cube.subCubes(["B"],["A","B","C"]), [["B","A"],["B","C"]])
+    deepEqual(cube.subCubes(["A","B"],["A","B","C"]), [])
+
+    deepEqual(cube.subCubes(["A", "B"],["A","B","C", "D"]), [["A","B", "C"],["A","B", "D"]])
 })
 

@@ -23,8 +23,8 @@ test("rows", function() {
 
     var tableView = makeTableView(table, rangeBuilder.range())
 
-    tableView.foreach(function(row, index){
-        deepEqual(row, table.row(index))
+    tableView.foreach(function(index){
+        deepEqual(tableView.row(index), table.row(index))
     })
 });
 
@@ -35,9 +35,9 @@ test("columns", function() {
 
     var tableView = makeTableView(table, undefined, columns)
 
-    tableView.foreach(function(row, index) {
+    tableView.foreach(function(index) {
         var filteredRow = { "Bar" : table.row(index).Bar } // select 2nd column
-        deepEqual(row, filteredRow)
+        deepEqual(tableView.row(index), filteredRow)
     })
 
     equal(tableView.lookupColumn("Bar"), 1)
@@ -68,6 +68,7 @@ test("uniqueValues", function() {
     var viewNavigation = makeTestView()
 
     deepEqual(viewNavigation.uniqueValues("Foo"), [1, 2, 3])
+    deepEqual(viewNavigation.uniqueValues(0), [1, 2, 3])
     deepEqual(viewNavigation.uniqueValues("Bar"), ["A", "B", "C"])
 })
 
@@ -83,5 +84,29 @@ test("subViews", function() {
 //        console.log(key)
 //        console.log(makeViewNavigation(subviews[key]).uniqueValues("Baz"))
 //    }
+})
+
+test("lookup", function() {
+    var view = makeTestView()
+    var ids = view.columnIds()
+    var idxs = view.columnIndexes()
+
+    var lookupIdxs = ids.map(function(id){ return view.lookupColumn(id) })
+    deepEqual(lookupIdxs, idxs)
+})
+
+test("visit", function() {
+    var sales = syncGet("sales.json")
+    var view = makeTableView(makeTable(sales))
+    view.visitCells(["City", "Product", "Year"],
+        function(cellView, dimensions, dimensionValues) {
+//            console.log("at leaf cell " + dimensions.join("-") + " " + dimensionValues.join("-") + " rows " + cellView.rowCount())
+            equal(cellView.rowCount(), 1)
+        },
+        function(cellView, dimensions, dimensionValues) {
+//            console.log("at interior cell " + dimensions.join("-") + " " + dimensionValues.join("-") + " rows " + cellView.rowCount())
+            ok(cellView.rowCount() > 1)
+        }
+    )
 })
 

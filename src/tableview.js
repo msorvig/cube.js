@@ -79,30 +79,19 @@ function makeTableView(inTable, rowRange, inColumns) {
                 console.log("forEachRow: table index " + index +" out of bounds")
                 return
             }
-            //console.log("cell " + m_table.row(index))
-            // select columns
-            var row = {}
-            //columnRange.foreach(function(index) {
-            //    row[m_table.fieldIds()[index]] = m_table.cell(index, ),
-            //})
-
-            m_columnIds.forEach(function(columnId){
-                row[columnId] = m_table.cell(index, columnId)
-            })
-            
-            functor(row, index)
+            functor(index)
         })
     }
 
-    function forEachSubView(columnId, func) {
+    function forEachSubView(column, func) {
         var seenValues = {}
-        foreach (function(row) {
-            var key = row[columnId]
+        foreach (function(rowIndex) {
+            var key = m_table.cell(rowIndex, column)
             if (!(key in seenValues)) {
                 seenValues[key] = true
                 var makeView = function() {
-                    var subRange = m_rowRange.filtered(function(rowIndex){
-                        return (m_table.cell(rowIndex, columnId) == key)
+                    var subRange = m_rowRange.filtered(function(subRowIndex){
+                        return (m_table.cell(subRowIndex, column) == key)
                     })
                     return makeTableView(m_table, subRange, m_columnIndexses)
                 }
@@ -111,27 +100,53 @@ function makeTableView(inTable, rowRange, inColumns) {
         })
     }
 
-    function subViews(columnId) {
+    function visitCells(columns, leafVisitor, internalVisitor) {
+        if (columns.length == 0) {
+            leafVisitor(this, [])
+            return
+        }
+        visitCellsHelper(this, columns, 0, [], leafVisitor, internalVisitor)
+    }
+
+    function visitCellsHelper(view, columns, columnIndex, columnValues, leafVisitor, interiorVisitor) {
+        view.forEachSubView(columns[columnIndex], function(key, makeview) {
+            var dimensionValues = columnValues.slice(0)
+            dimensionValues.push(key)
+            var subView = makeview()
+            var subColumnIndex = columnIndex + 1
+            var subColumns = columns.slice(0, subColumnIndex)
+
+            if (subColumnIndex >= columns.length) {
+                if (leafVisitor)
+                    leafVisitor(subView, subColumns, dimensionValues)
+            } else {
+                visitCellsHelper(subView, columns, subColumnIndex, dimensionValues, leafVisitor, interiorVisitor)
+                if (interiorVisitor)
+                    interiorVisitor(subView, subColumns, dimensionValues)
+            }
+        })
+    }
+
+    function subViews(column) {
         var subViews = {}
-        forEachSubView(columnId, function(key, makeView){
+        forEachSubView(column, function(key, makeView){
             subViews[key] = makeView()
         })
         return subViews
     }
 
-    function uniqueValues(columnId) {
+    function uniqueValues(column) {
         var values = []
-        forEachSubView(columnId, function(value){
+        forEachSubView(column, function(value){
             values.push(value)
         })
         return values
     }
 
-    function values(columnId) {
+    function values(column) {
         var values = []
         foreach (function(row) {
-            var value = row[columnId]
-            values.push(value)
+            values.push(m_table.cell(row, column))
         })
         return values
     }
@@ -159,6 +174,7 @@ function makeTableView(inTable, rowRange, inColumns) {
        "measureIds" : measureIds,
        "foreach" : foreach,
        forEachSubView : forEachSubView,
+       visitCells : visitCells,
        values : values,
        uniqueValues : uniqueValues,
        subViews : subViews,
