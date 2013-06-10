@@ -23,6 +23,10 @@ function makeTableView(inTable, rowRange, inColumns) {
         return m_columnIds;
     }
 
+    function columnIndexes() {
+        return m_columnIndexses;
+    }
+
     function columns() {
         return m_columnIndexses.map(function(index) { return m_table.field(index) })
     }
@@ -35,16 +39,38 @@ function makeTableView(inTable, rowRange, inColumns) {
         return m_columnIndexses.filter(function(index) { return m_table.field(index).id == id })[0]
     }
 
+    function column(index) {
+        return m_table.field(index)
+    }
+
+    function dimensionIndexes() {
+        return m_columnIndexses
+            .filter(function(index) { return m_table.field(index).kind == "dimension" })
+    }
+
     function dimensionIds() {
         return columns()
             .filter(function(column) { return column.kind == "dimension" })
             .map(function(column) { return column.id })
     }
 
+    function measureIndexes() {
+        return m_columnIndexses
+            .filter(function(index) { return m_table.field(index).kind == "measure" })
+    }
+
     function measureIds() {
         return columns()
             .filter(function(column) { return column.kind == "measure" })
             .map(function(column) { return column.id })
+    }
+
+    function makeRow(index) {
+        var row = {}
+        m_columnIds.forEach(function(columnId) {
+            row[columnId] = m_table.cell(index, columnId)
+        })
+        return row
     }
 
     function foreach(functor) {
@@ -120,11 +146,16 @@ function makeTableView(inTable, rowRange, inColumns) {
 
     return {
        "table" : table,
+       "row" : makeRow,
        "columns" : columns,
        "columnIds" : columnIds,
+       "columnIndexes" : columnIndexes,
        "columnAttributes" : columnAttributes,
        "lookupColumn" : lookupColumn,
+       "column" : column,
+       "dimensionIndexes" : dimensionIndexes,
        "dimensionIds" : dimensionIds,
+       "measureIndexes" : measureIndexes,
        "measureIds" : measureIds,
        "foreach" : foreach,
        forEachSubView : forEachSubView,
