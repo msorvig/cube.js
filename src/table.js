@@ -50,6 +50,7 @@ function makeTable(ids, labels, kinds) {
 
     function addRow(row) {
         table.rows.push(row)
+        return table.rows.length - 1
     }
 
     function rowCount() {
