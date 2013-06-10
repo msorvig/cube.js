@@ -108,8 +108,11 @@ function makeTable(ids, labels, kinds) {
         return -1
     }
 
-    function cell(row, field) {
-        return table.rows[row][field]
+    function cell(rowIndex, column) {
+        if (typeof column === "number")
+            return table.rows[rowIndex][field(column).id]
+        else
+            return table.rows[rowIndex][column]
     }
 
     return {
