@@ -14,13 +14,20 @@
 */
 
 // Constructor 1 : makeTable(ids, labels, kinds)
-// Constructor 2: function makeTabe(tableData)
+// Constructor 2: function makeTabe(tableHeader)
+// Constructor 3: function makeTabe(tableData)
 // ### factor 1 into tableBuilder?
 function makeTable(ids, labels, kinds) {
     var table = {}
     if (ids.schema !== undefined && ids.rows !== undefined) {
         // hackety -- a table JSON data structure was passed. Use it.
         table = ids
+    } else if (ids.length !== undefined && ids[0].id != undefined) {
+        // array of fields
+        table = {
+            "schema" : { "fields" : ids },
+            "rows": []
+        }
     } else {
         table = {
             "schema" : { "fields" : makeFields(ids, labels, kinds) },
@@ -83,6 +90,10 @@ function makeTable(ids, labels, kinds) {
         return fieldAttributes("kind")
     }
 
+    function fields() {
+        return table.schema.fields;
+    }
+
     function filterFields(fieldIds) {
         return table.schema.fields.filter(
             function(field) { return (fieldIds.indexOf(field) != -1) }
@@ -110,6 +121,7 @@ function makeTable(ids, labels, kinds) {
         "fieldIds" : fieldIds,
         "fieldLabels" : fieldLabels,
         "fieldKinds" : fieldKinds,
+        "fields" : fields,
         "filterFields" : filterFields,
         "cell" : cell
     }
