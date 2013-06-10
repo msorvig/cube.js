@@ -5,15 +5,15 @@ function makeTableView(inTable, rowRange, inColumns) {
     var m_table = inTable
     var m_rowRange = rowRange || Range(0, m_table.rowCount())
     var m_columnIndexses = inColumns || range(0, m_table.fieldCount())  // array of ordered column indexes into the table columns [2, 1, ...]
-    var m_columnIds = columnAttributes("id")   		 			    // array of ordered column ids ["Bar", "Foo", ..]
+    var m_columnIds = columnAttributes("id")                        // array of ordered column ids ["Bar", "Foo", ..]
 
-	function range(begin, end) {
-		var array = []
-		for (var i = begin; i < end; ++i) {
-			array.push(i)
-		}
-		return array;
-	}
+    function range(begin, end) {
+        var array = []
+        for (var i = begin; i < end; ++i) {
+            array.push(i)
+        }
+        return array;
+    }
 
     function table() {
         return m_table
