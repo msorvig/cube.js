@@ -44,13 +44,8 @@ function makeTableCube(tableView)
 
 		var rowExpressionKey = semantic.rowExpressionsString()
 
-        console.log(rowExpressionKey)
-
         // compute cube(s)
         var cubeView = computeCubesForApex(dimensionIndexes, baseView, rowExpressionKey)
-        console.log(cubeView)
-        console.log(cubeView.columnIndexes())
-        console.log(cubeView.columnIds())
         return cubeView
     }
 
@@ -184,8 +179,6 @@ function makeTableCube(tableView)
     }
 
     function computeCubeForApex(table, view, apexDimensions, rollupDimension) {
-        console.log("compute cube " + canonicalCubeName(apexDimensions) + " rollup " + rollupDimension)
-
         var acc_rangeBuilders = {} // cube names -> RangeBuider
 
         function accumulateRows(view, dimensions, values) {
