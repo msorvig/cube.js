@@ -2,6 +2,9 @@ import json
 import itertools
 import random
 
+# reproducable randomness
+random.seed(0)
+
 countries = ["Germany", "France", "Italy"]
 cities = { "Germany" : ["Berlin", "Dusseldorf", "Munic"], "France" : ["Paris", "Lyon", "Marseille"], "Italy" : ["Rome", "Milan", "Naples"] }
 products = ["A", "B", "C", "D"]
