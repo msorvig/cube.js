@@ -27,27 +27,29 @@ test("query", function() {
     
     // pass through (null query)
     var selectView = cube.select("")
-    selectView.foreach(function(row, index) {
-        deepEqual(row, table.row(index))
+    selectView.foreach(function(index) {
+        deepEqual(selectView.row(index), table.row(index))
     })
     
     // select row 2
     selectView = cube.select("Foo > 1 Baz > 5")
-    selectView.foreach(function(row, index) {
-        deepEqual(row, table.row(2))
+    selectView.foreach(function(index) {
+        deepEqual(selectView.row(index), table.row(2))
     })
 
     // select Column 1
     selectView = cube.select("Foo")
-    selectView.foreach(function(row, index) {
+    selectView.foreach(function(index) {
+		var row = selectView.row(index)
         equal(row["Foo"], table.row(index)["Foo"])
         equal(row["Bar"], undefined)
     })
     
     // exclude Column 1
     selectView = cube.select("-Foo")
-    selectView.foreach(function(row, index) {
-        equal(row["Foo"], undefined)
+    selectView.foreach(function(index) {
+		var row = selectView.row(index)
+		equal(row["Foo"], undefined)
     })
 })
 
