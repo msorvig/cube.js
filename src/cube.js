@@ -42,10 +42,12 @@ function makeTableCube(tableView)
         if (dimensions.length == view.dimensionIds().length)
             return baseView
 
-        console.log(dimensionIndexes)
+		var rowExpressionKey = semantic.rowExpressionsString()
+
+        console.log(rowExpressionKey)
 
         // compute cube(s)
-        var cubeView = computeCubesForApex(dimensionIndexes, baseView)
+        var cubeView = computeCubesForApex(dimensionIndexes, baseView, rowExpressionKey)
         console.log(cubeView)
         console.log(cubeView.columnIndexes())
         console.log(cubeView.columnIds())
@@ -100,12 +102,24 @@ function makeTableCube(tableView)
     //          [A]          [B]              [C]
     //     [A,B]  [A,C] [B,A], [B, C]   [C, B], [C, A]
 
-    var m_cubes = {} // cube name -> row range
-    var m_cubesTable = undefined
-    function computeCubesForApex(apexDimensions, view){
-                console.log(apexDimensions)
-        if (m_cubesTable === undefined)
-            m_cubesTable = makeTable(view.columns())
+	var m_cubeCaches = {}
+	var m_key = ""	// active cache key
+	var m_cubes // cube name -> row range
+	var m_cubesTable
+    function computeCubesForApex(apexDimensions, view, rowExpressionKey){
+
+		// Set up cube cache. Since a query might select a subset of all rows
+		// each distinct query needs a separate cache, keyed on rowExpressionKey.
+		// Each cache entry contains a table for storing computed cube rows and
+		// ranges for the individual cubes.
+		m_key = rowExpressionKey
+		if (m_cubeCaches[m_key] === undefined)
+			m_cubeCaches[m_key] = { range : {}, table : makeTable(view.columns()) }
+
+		var cubeCache = m_cubeCaches[m_key]
+		m_cubes = cubeCache.range
+		m_cubesTable = cubeCache.table
+
         var allDimensions = view.dimensionIndexes()
 
         if (apexDimensions.length == allDimensions.length)

@@ -18,6 +18,21 @@ function validVariableVisit(rootNode, lookupVariable) {
     return valid
 }
 
+function stringRangeVisit(rootNode) {
+	var max = Number.MIN_VALUE
+	var min = Number.MAX_VALUE
+
+    rootNode.visit(function(node) {
+		if (node.range === undefined)
+			return
+		// node.range is [pos, len]
+		max = Math.max(max, node.range[0] + node.range[1])
+		min = Math.min(min, node.range[0])
+    })
+    return [min, max - min] // return [pos, len]
+}
+
+
 // Sort expressions into column, row, and invalid selector expressions.
 function analyzeAst(expressionListNode, lookupVariable) {
 
@@ -44,12 +59,19 @@ function analyzeAst(expressionListNode, lookupVariable) {
         }
     }
     var columns = determineColumns(columnSelectors)
+
+	var rowExpressionsString = ""
+	rowSelectors.forEach(function(node) {
+		var fullRange = stringRangeVisit(node)
+		rowExpressionsString += expressionListNode.string.slice(fullRange[0], fullRange[0] + fullRange[1])
+	})
     
     return {
         "includeColumns" : function() { return columns.included },
         "excludeColumns" : function() { return columns.excluded },
         "isRowSelected" : function(lookupVariable) { return evaluateBoolExpressions(rowSelectors, lookupVariable) },
         "errorExpressions" : function() { return errorExpressions },
+		"rowExpressionsString" : function() { return rowExpressionsString },
     }
 }
 
