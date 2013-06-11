@@ -49,18 +49,21 @@ function makeTableCube(tableView)
         return cubeView
     }
 
-    function intersection(array1, array2) {
+	// Returns the iterms that are both in array1 and array2
+    function intersect(array1, array2) {
         return array1.filter(function(item) {
             return (array2.indexOf(item) != -1)
         })
     }
 
+	// Selects columns. include/exclude bases on includeColumns and excludeColumns
+	// As a special case, including no columns selects all coulumns
     function selectColumns(allColumns, includeColumns, excludeColumns) {
         var columns = []
 
         // start with the included columns, or all columns if
         // none are in the include array.
-        if (intersection(allColumns, includeColumns).length > 0)
+        if (intersect(allColumns, includeColumns).length > 0)
             columns = includeColumns
         else
             columns = allColumns
@@ -92,15 +95,23 @@ function makeTableCube(tableView)
         return rangeBuilder.range()
     }
 
-    // Columns: A - B - C
+	// Compute the cube "pyramid". For example:
+    // Dimenssions: A - B - C
     // Cubes:                 []
     //          [A]          [B]              [C]
     //     [A,B]  [A,C] [B,A], [B, C]   [C, B], [C, A]
-
+	//
+	// Cube computation starts top-down at the "apex" dimention(s),
+	// which can for example be [A] or [A,B] (depending on the query)
+	//
+	// Computed cubes and sub-cubes are cached.
+	//
+	// TODO: support computing the top "[]" cube
+	//
 	var m_cubeCaches = {}
 	var m_key = ""	// active cache key
-	var m_cubes // cube name -> row range
-	var m_cubesTable
+	var m_ranges   // cube name -> row range
+	var m_cubeTable
     function computeCubesForApex(apexDimensions, view, rowExpressionKey){
 
 		// Set up cube cache. Since a query might select a subset of all rows
@@ -112,42 +123,41 @@ function makeTableCube(tableView)
 			m_cubeCaches[m_key] = { range : {}, table : makeTable(view.columns()) }
 
 		var cubeCache = m_cubeCaches[m_key]
-		m_cubes = cubeCache.range
-		m_cubesTable = cubeCache.table
+		m_ranges = cubeCache.range
+		m_cubeTable = cubeCache.table
 
         var allDimensions = view.dimensionIndexes()
 
         if (apexDimensions.length == allDimensions.length)
             return view
 
-        computeCubesForApexImpl(m_cubesTable, view, apexDimensions, allDimensions)
-        var cubeRange = m_cubes[canonicalCubeName(apexDimensions)]
-        return makeTableView(m_cubesTable, cubeRange, apexDimensions.concat(view.measureIndexes()))
+        computeCubesForApexHelper(view, apexDimensions, allDimensions)
+        var cubeRange = m_ranges[canonicalCubeName(apexDimensions)]
+        return makeTableView(m_cubeTable, cubeRange, apexDimensions.concat(view.measureIndexes()))
     }
 
-    function computeCubesForApexImpl(table, view, apexDimensions, allDimensions) {
+    function computeCubesForApexHelper(view, apexDimensions, allDimensions) {
         if (apexDimensions === undefined)
             return
 
         var cubeName = canonicalCubeName(apexDimensions)
-        if (m_cubes[cubeName] !== undefined) {
-            console.log("have " + cubeName)
-            return m_cubes[cubeName] // already computed
+        if (m_ranges[cubeName] !== undefined) {
+            return m_ranges[cubeName] // already computed
         }
 
         // recurse to subcubes
-        var icebergCubes = true // ## iceberg or shell?
+        var shellCubes = true
         var rollups = rollupDimensions(apexDimensions, allDimensions)
         var rollupDimension = undefined
         if (rollups.length == 0)
             return
 
         // if iceberg then compute a minimal set of cubes for the given apex cube.
-        if (icebergCubes) {
+        if (shellCubes) {
             // check if we can re-use a cube by rolling up a spesific dimension
             rollups.forEach(function(rollup) {
                 var subName = canonicalCubeName(apexDimensions.concat(rollup))
-                if (m_cubes[cubeName] !== undefined) {
+                if (m_ranges[cubeName] !== undefined) {
                     rollupDimension = rollup // found cached cube
                 }
             })
@@ -156,30 +166,51 @@ function makeTableCube(tableView)
                 // no cached cube found, roll up the first dimension
                 rollupDimension = rollups[0]
                 var subCube = apexDimensions.concat(rollupDimension)
-                computeCubesForApexImpl(table, view, subCube, allDimensions)
+                computeCubesForApexHelper(view, subCube, allDimensions)
             }
         } else {
             // compute all sub-cubes
             rollups.forEach(function(rollup) {
                 var subApex = apexDimensions.concat(rollup)
-                computeCubesForApexImpl(table, view, subApex, allDimensions)
+                computeCubesForApexHelper(view, subApex, allDimensions)
             })
             rollupDimension = rollups[0] // roll up the first dimension
         }
 
         // computing a subcube might have computed this cube as a side effect:
-        if (m_cubes[cubeName] !== undefined) {
-            return m_cubes[cubeName]
+        if (m_ranges[cubeName] !== undefined) {
+            return m_ranges[cubeName]
         }
 
         // returning from recursion, now compute *this* cube which we can do by
         // rolling up the dimension we previosly compuded a subcube for.
-        m_cubes[cubeName] = computeCubeForApex(table, view, apexDimensions, rollupDimension)
-        return m_cubes[cubeName]
+        m_ranges[cubeName] = computeCubeRows(view, apexDimensions, rollupDimension)
+        return m_ranges[cubeName]
     }
 
-    function computeCubeForApex(table, view, apexDimensions, rollupDimension) {
-        var acc_rangeBuilders = {} // cube names -> RangeBuider
+    function computeCubeRows(view, apexDimensions, rollupDimension) {
+
+		var acc_rangeBuilders = {} // cube name -> RangeBuider
+
+        // visit the view "cells" (the combinations of dimension values) and accumulate measures
+        view.visitCells(apexDimensions,
+            function(view, dimensions, values) {
+                // leaf. This accumulates rows for the target cube.
+                accumulateRows(view, dimensions, values)
+        },  function(view, dimensions, values) {
+                // interior. This accumulates rows for "higher" cubes and is optional. 
+				// Pro: The views have already been generated
+				// Con: measures will be (re)-accumulated from the base fact table,
+				// duplicating work
+                accumulateRows(view, dimensions, values)
+        })
+
+        // finalize: create views from range builders
+        for (key in acc_rangeBuilders) {
+            m_ranges[key] = acc_rangeBuilders[key].range()
+        }
+
+        return m_ranges[canonicalCubeName(apexDimensions)]
 
         function accumulateRows(view, dimensions, values) {
             var acc_row = {}
@@ -200,29 +231,13 @@ function makeTableCube(tableView)
 
             // add row to table and the row index ot the cube's view.
             var cubeName = canonicalCubeName(dimensions)
-            var rowIndex = table.addRow(acc_row)
+            var rowIndex = m_cubeTable.addRow(acc_row)
             if (acc_rangeBuilders[cubeName] === undefined) {
                acc_rangeBuilders[cubeName] = RangeBuilder()
            }
            acc_rangeBuilders[cubeName].add(rowIndex, 1)
         }
 
-        // visit and accumulate.
-        view.visitCells(apexDimensions,
-            function(view, dimensions, values) {
-                // leaf
-                accumulateRows(view, dimensions, values)
-        },  function(view, dimensions, values) {
-                // interior
-                accumulateRows(view, dimensions, values)
-        })
-
-        // finalize: create views from range builders
-        for (key in acc_rangeBuilders) {
-            m_cubes[key] = acc_rangeBuilders[key].range()
-        }
-//        console.log("return " + canonicalCubeName(apexDimensions))
-        return m_cubes[canonicalCubeName(apexDimensions)]
     }
 
     function rollupDimensions(apexDimensions, allDimensions) {
