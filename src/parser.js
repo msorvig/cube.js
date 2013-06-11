@@ -266,18 +266,11 @@ function Parser() {
     }
 }
 
-function lex(input) {
+function parse(string) {
     var lexer = new Lexer
-    return lexer.lex(input)
-}
-
-var parse = function(lexed){
     var parser = new Parser
-    return parser.parse(lexed)
-}
-
-function perseQuery(query) {
-    var ast  = parse(lex(query))
+    var ast = parser.parse(lexer.lex(string))
+    ast.string = string
     return ast
 }
 

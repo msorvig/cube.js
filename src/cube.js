@@ -14,7 +14,7 @@ function makeTableCube(tableView)
         //console.log("select " + query)
 
         // Parse and analyze query
-        var ast = perseQuery(query)
+        var ast = parse(query)
         var isValidVariable = function(variableName) { return view.columnIds().indexOf(variableName) != -1 }
         semantic = analyzeAst(ast, isValidVariable)
 

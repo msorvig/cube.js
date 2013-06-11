@@ -12,7 +12,7 @@ function evalExpression(expressionString) {
 }
 
 function evalExpressions(expressionsString) {
-    return evalExpressionListAst(parse(lex(expressionsString)), lookup)
+    return evalExpressionListAst(parse(expressionsString), lookup)
 }
 
 test("expressions", function() {
@@ -39,4 +39,11 @@ test("strings", function() {
     equal(evalExpression('"foo" == "foo"'), true)
     equal(evalExpression('"foo" == "bar"'), false)
     equal(evalExpression('"foo" != "bar"'), true)
+})
+
+test("queryString", function() {
+	var string = "2 + 3 * 4 + 5"
+    var ast = parse(string)
+	equal(ast.string, string)
+    console.log(ast.string)
 })
