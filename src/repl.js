@@ -36,7 +36,7 @@ function Repl(env) {
     }
 
     function print(query) {
-        env.appendNode(createTable(cubeSelect(view, query)))
+        env.appendTable(createTable(cubeSelect(view, query)))
     }
 
     function plot(query) {

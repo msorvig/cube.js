@@ -56,6 +56,12 @@
         appendNode(pre)
     }
 
+	function appendTable(table) {
+		// add bootstrap style classes:
+		$(table).addClass("table table-condensed table-striped table-bordered")
+		appendNode(table)
+	}
+
     function appendNode(node) {
         var output = document.getElementById(outputStr)
         var div = document.createElement('div');
@@ -70,6 +76,7 @@
         getInputText : getInputText,
         setInputPlaceholderText : setInputPlaceholderText,
         appendTextLine : appendTextLine,
+        appendTable : appendTable,
         appendNode : appendNode,
     })
 
