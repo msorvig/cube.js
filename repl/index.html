@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="./style.css" />
 
 	<!-- Bootstrap -->
-	<link href="../3rdparty/bootstrap/css/bootstrap-noglobal.min.css" rel="stylesheet" media="screen">
+	<link href="../3rdparty/bootstrap/css/bootstrap-noglobal.css" rel="stylesheet" media="screen">
     <script src="../3rdparty/bootstrap/js/bootstrap.min.js"></script>
 
     <script src="../src/table.js" ></script>
@@ -85,15 +85,15 @@
 </head>
     <body onload="setInputFocus();">
         
-        <div class="header row">
+        <div class="header layout-row">
             <h2>Cube.js Command Line</h2>
         </div>
 
-        <div class="body row scroll-y" id="output">
+        <div class="body layout-row scroll-y" id="output">
 
         </div>
 
-        <div class="footer row">
+        <div class="footer layout-row">
            <input id="input" type = text; style="width: 100%;" 
                 placeholder="Command or 'help' to list available commands"; 
                 onchange="repl.textChanged()"
