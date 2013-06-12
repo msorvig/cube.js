@@ -9,6 +9,8 @@
     <script src="../../src/table.js" ></script>
     <script src="../../src/range.js" ></script>
     <script src="../../src/tableview.js" ></script>
+    <script src="../../src/cube.js" ></script>
+    <script src="../../src/data.js" ></script>
     <script src="../../src/lexer.js" ></script>
     <script src="../../src/parser.js" ></script>
     <script src="../../src/semantic.js" ></script>
@@ -24,7 +26,7 @@
     {
         fullView = makeTableView(makeTable(data))
         var helpContainer = document.getElementById("help")
-        helpContainer.innerHTML = "Dimensions: <b>" + dimensionIds(fullView).join(" ") + "</b> Measures: <b>" + measureIds(fullView).join(" ") + "</b>"
+        helpContainer.innerHTML = "Dimensions: <b>" + fullView.dimensionIds().join(" ") + "</b> Measures: <b>" + fullView.measureIds().join(" ") + "</b>"
         cube = new makeCube(fullView)
         queryChanged()
     }
