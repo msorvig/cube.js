@@ -23,6 +23,10 @@ function HighchartsDataProvider(view) {
         return m_categories;
     }
 
+	function categoriesTitle() {
+		return categoriesDimension;
+	}
+
     function serie(view) {
         return view.values(m_measure)
     }
@@ -31,17 +35,28 @@ function HighchartsDataProvider(view) {
 
         var s = []
         view.forEachSubView(seriesDimension, function(key, makeview) {
-            s.push({ name : key,
+			s.push({ name : key,
                      data : serie(makeview()) })
         })
         return s
 
     }
 
+	function measureUnit() {
+		return m_measure
+	}
+
+	function legendEnabled() {
+		return seriesDimension !== undefined
+	}
+
     return {
         title : title,
         categories : categories,
+		categoriesTitle : categoriesTitle,
         series : series,
+		measureUnit : measureUnit,
+		legendEnabled: legendEnabled,
     }
 }
 
@@ -58,16 +73,16 @@ function createHighChart(view) {
         xAxis: {
             categories: dataProvider.categories(),
             title: {
-                text: 'Test'
+                text: dataProvider.categoriesTitle()
             }
-
         },
         yAxis: {
             title: {
-                text: 'Test'
+                text: dataProvider.measureUnit()
             }
         },
-        series : dataProvider.series()
+        series : dataProvider.series(),
+		legend : { enabled : dataProvider.legendEnabled() }
     });
     return target
 }
