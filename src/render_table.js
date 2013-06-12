@@ -2,7 +2,7 @@
 function createTable(view)
 {
     // header
-    var table = $("<table id=letable>")
+    var table = $("<table class='table table-condensed table-striped table-bordered'>")
     var head = table.append($("<thead>"))
     var tr = $("<tr/>¨")
     head.append(tr)
