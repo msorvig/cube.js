@@ -1,13 +1,14 @@
 function Repl(env) {
-    var commands = ["help", "load", "select", "print", "plot"] // keep in sync with help text!
-    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true,  "plot" : true }
+    var commands = ["help", "load", "select", "print", "tabulate", "plot"] // keep in sync with help text!
+    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true, "tabulate" : true, "plot" : true }
     function printHelp(){
         var text = [
             ["Available commands:" ],
             ["help        This help"],
             ["load        Load data set:         'load sales.json'"],
             ["select      Run query on data set: 'select Product City'"],
-            ["print       Print data table:      'print'"],
+            ["print       Print data list:      'print'"],
+            ["tabulate    Print data table:      'print'"],
             ["plot        Plot data graph:       'plot'"],
         ]
         text.forEach(function(textLine) { env.appendTextLine(textLine) })
@@ -36,6 +37,10 @@ function Repl(env) {
     }
 
     function print(query) {
+        env.appendTable(createList(cubeSelect(view, query)))
+    }
+
+    function tabulate(query) {
         env.appendTable(createTable(cubeSelect(view, query)))
     }
 
@@ -57,6 +62,9 @@ function Repl(env) {
         } else if (commandLine.indexOf("print") == 0) {
             var query = commandLine.substring(6)
             print(query)
+        } else if (commandLine.indexOf("tabulate") == 0) {
+            var query = commandLine.substring(9)
+            tabulate(query)
         } else if (commandLine.indexOf("plot") == 0) {
             var query = commandLine.substring(5)
             plot(query)
