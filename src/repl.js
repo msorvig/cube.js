@@ -1,26 +1,27 @@
 function Repl(env) {
-    var commands = ["help", "load", "select", "print", "tabulate", "plot"] // keep in sync with help text!
-    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true, "tabulate" : true, "plot" : true }
+    var commands = ["help", "load", "select", "print", "tabulate", "plot", "foreach"] // keep in sync with help text!
+    var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true, "tabulate" : true, "plot" : true, "foreach" : true}
     function printHelp(){
         var text = [
             ["Available commands:" ],
             ["help        This help"],
             ["load        Load data set:         'load sales.json'"],
-            ["select      Run query on data set: 'select Product City'"],
-            ["print       Print data list:      'print'"],
+            ["select      Set the global query:  'select Product City'"],
+            ["print       Print data list:       'print'"],
             ["tabulate    Print data table:      'print'"],
             ["plot        Plot data graph:       'plot'"],
+            ["foreach     Repeat command:        'foreach Country plot Product City'"],
         ]
         text.forEach(function(textLine) { env.appendTextLine(textLine) })
     }
 
-    var cube = {}
-    var view = {}
+    var m_cube = {}
+    var m_view = {}
 
     function load(filePath) {
         function loadComplete(data) {
             env.appendTextLine("Load OK: "+ filePath)
-            cube = makeCube(makeTableView(makeTable(data)))
+            m_cube = makeCube(makeTableView(makeTable(data)))
             select("")
         }
         function error(code) {
@@ -31,24 +32,32 @@ function Repl(env) {
     }
 
     function select(query) {
-        view = cube.select(query)
-        env.appendTextLine("Columns " + view.columnIds().join(" "))
-        env.appendTextLine("Rows " + view.rowCount())
+        m_view = m_cube.select(query)
+        env.appendTextLine("Columns " + m_view.columnIds().join(" "))
+        env.appendTextLine("Rows " + m_view.rowCount())
     }
 
-    function print(query) {
+    function print(query, view) {
         env.appendTable(createList(cubeSelect(view, query)))
     }
 
-    function tabulate(query) {
+    function tabulate(query, view) {
         env.appendTable(createTable(cubeSelect(view, query)))
     }
 
-    function plot(query) {
+    function plot(query, view) {
         env.appendNode(createHighChart(cubeSelect(view, query)))
     }
 
-    function switchCommand(commandLine) {
+    function foreach(query, view) {
+		var parts = query.split(" ")
+		view.forEachSubView(parts[0], function(val, makeView) {
+			env.appendTextLine(val)
+			switchCommand(parts.slice(1).join(" "), makeView())
+		})
+    }
+
+    function switchCommand(commandLine, view) {
         if (commandLine.indexOf("help") == 0) {
             printHelp()
         } else if (commandLine.indexOf("'help'") == 0) {
@@ -61,13 +70,16 @@ function Repl(env) {
             select(query)
         } else if (commandLine.indexOf("print") == 0) {
             var query = commandLine.substring(6)
-            print(query)
+            print(query, view)
         } else if (commandLine.indexOf("tabulate") == 0) {
             var query = commandLine.substring(9)
-            tabulate(query)
+            tabulate(query, view)
         } else if (commandLine.indexOf("plot") == 0) {
             var query = commandLine.substring(5)
-            plot(query)
+            plot(query, view)
+        } else if (commandLine.indexOf("foreach") == 0) {
+            var query = commandLine.substring(8)
+            foreach(query, view)
         } else {
             env.appendTextLine("Unknown command: " + commandLine)
         }
@@ -82,7 +94,7 @@ function Repl(env) {
         typedPrefix = "" // reset tab completion
 
         env.appendTextLine("> " + commandLine)
-        switchCommand(commandLine)
+        switchCommand(commandLine, m_view)
         env.appendTextLine(" ")
     }
 
