@@ -31,7 +31,6 @@ function syncGet(url) {
     return obj
 }
 
-
 function loadData(dataUrl, callback)
 {
     getJson(dataUrl + '/data.json' , callback)
