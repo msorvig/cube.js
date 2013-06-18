@@ -111,7 +111,11 @@ function createTableHtml(view)
     	if(!dataProvider.is1D())
         	tr.append("<th>" + row.name + "</th>")
         dataProvider.headers().forEach(function(header, index) {
-            tr.append("<td>" + row.data[index] + "</td>")
+            var value = row.data[index]
+            if (value === undefined) {
+                value = 0
+            }
+            tr.append("<td>" + value + "</td>")
         })
     })
     return table
