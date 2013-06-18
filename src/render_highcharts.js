@@ -87,4 +87,6 @@ function createHighChart(view) {
     return target
 }
 
-
+function createHighChartWidget(view, queryFunction) {
+    return createDynamicHtmlWidget(view, function(view) { return createHighChart(queryFunction(view)) })
+}

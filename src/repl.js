@@ -16,79 +16,80 @@ function Repl(env) {
             ["foreach     Repeat command:        'foreach Country plot Product City'"],
             ["selector    Select sub-set:        'selector Country plot Product City'"],
         ]
-        return text.map(function(textLine){ return evn.createTextNode(textLine) })
+        return createContainerWidget(text.map(function(textLine){ return createTextWidget(textLine) }))
     }
 
     var m_cube = {}
     var m_view = {}
 
+    function createTextWidget(text) {
+        return createDynamicHtmlWidget(undefined, env.createTextNode.bind(env, text))
+    }
+
     function load(filePath) {
-        var result = []
+        var widgets = []
         function loadComplete(data) {
             m_cube = makeCube(makeTableView(makeTable(data)))
-            result.push(env.createTextNode("Load OK: "+ filePath))
-            result = result.concat(select(""))
+            widgets.push(createTextWidget("Load OK: "+ filePath))
+            widgets.push(select(""))
         }
         function error(code) {
-            result.push(env.createTextNode(filePath + ": " + code ))
+            result.push(createTextWidget(filePath + ": " + code ))
         }
 
         syncGetJson(filePath, loadComplete, error)
-        return result
+        return createContainerWidget(widgets)
+    }
+
+    function selectOnView(query, view) {
+        return makeCube(view).select(query)
     }
 
     function select(query) {
         m_view = m_cube.select(query)
-        return [
-            env.createTextNode("Columns " + m_view.columnIds().join(" ")),
-            env.createTextNode("Rows " + m_view.rowCount()),
-        ]
+        return createContainerWidget([
+            createTextWidget("Columns " + m_view.columnIds().join(" ")),
+            createTextWidget("Rows " + m_view.rowCount()),
+        ])
     }
 
     function print(query, view) {
-        return env.styleTable(createList(cubeSelect(view, query)))
+        return createListWidget(view, selectOnView.bind(this, query), env.styleTable)
     }
 
     function tabulate(query, view) {
-        return env.styleTable(createTable(cubeSelect(view, query)))
+        return createTableWidget(view, selectOnView.bind(this, query), env.styleTable)
     }
 
     function plot(query, view) {
-        return createHighChart(cubeSelect(view, query))
+        return createHighChartWidget(view, selectOnView.bind(this, query))
     }
 
+    // repeats the subcommand for all unique values in a dimension
     function foreach(query, view) {
         var parts = query.split(" ")
         var repeatDimension = parts[0]
-        var repeatCommand = parts.slice(1).join(" ")
+        var subCommand = parts.slice(1).join(" ")
 
-        return createViewRepater(view, repeatDimension,
-            function(subView) {
-                return switchCommand(repeatCommand, subView)
-            }
-        )
+        return createSubViewWidget(view, repeatDimension, switchCommand.bind(this, subCommand), createTextWidget)
     }
 
+    // Displays a button group for all unique values in a dimension, runs
+    // the subcommand for the selected one.
     function selector(query, view) {
         var parts = query.split(" ")
         var selectDimension = parts[0]
-        var selectCommand = parts.slice(1).join(" ")
+        var subCommand = parts.slice(1).join(" ")
 
-        return createViewSelector(view, selectDimension,
-            function(subView) {
-                var foo = function () {
-                    return switchCommand(selectCommand, subView)
-                }
-                return foo()
-            }
-        )
+        return createViewSelectorWidget(view, selectDimension, switchCommand.bind(this, subCommand))
     }
 
+    // runs a command from the command line with a view and returns a widget
     function switchCommand(commandLine, view) {
         if (commandLine.indexOf("help") == 0) {
             return printHelp()
         } else if (commandLine.indexOf("'help'") == 0) {
-            return env.createTextNode("Try help (without the quotes)")
+            return createTextWidget("Try help (without the quotes)")
         } else if (commandLine.indexOf("load") == 0) {
             var filePath = commandLine.substring(5) // everything after "load "
             return load(filePath)
@@ -112,7 +113,7 @@ function Repl(env) {
             return selector(query, view)
         } else {
             if (commandLine.length > 0)
-            return env.createTextNode("Unknown command: " + commandLine)
+            return createTextWidget("Unknown command: " + commandLine)
         }
     }
 
@@ -125,16 +126,9 @@ function Repl(env) {
 
         typedPrefix = "" // reset tab completion
 
-        env.appendNode(env.createTextNode("> " + commandLine))
-        var output = switchCommand(commandLine, m_view)
-        if (output instanceof Array) {
-            output.forEach(function(item) {
-                env.appendNode(item)
-            })
-        } else {
-            env.appendNode(output)
-        }
-        env.appendNode(env.createTextNode(" "))
+        env.appendNode(createTextWidget("> " + commandLine).render())
+        env.appendNode(switchCommand(commandLine, m_view).render())
+        env.appendNode(createTextWidget(" ").render())
     }
 
     function textChanged() {

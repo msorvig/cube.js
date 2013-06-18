@@ -20,8 +20,10 @@
     <script src="../src/semantic.js" ></script>
     <script src="../src/data.js" ></script>
     <script src="../src/cube.js" ></script>
+    <script src="../src/render_widget.js" ></script>
     <script src="../src/render_table.js" ></script>
     <script src="../src/render_highcharts.js" ></script>
+    <script src="../src/render_selector.js" ></script>
     <script src="../src/repl.js" ></script>
 
     <script type="text/javascript">
@@ -49,17 +51,17 @@
         input.placeholder = text
     }
 
-    function appendTextLine(text) {
+	function createTextNode(text) {
         var pre = document.createElement('pre');
         pre.className = "outputItemPre"
         pre.appendChild(document.createTextNode(text))
-        appendNode(pre)
-    }
+		return pre
+	}
 
-	function appendTable(table) {
+	function styleTable(table) {
 		// add bootstrap style classes:
 		$(table).addClass("table table-condensed table-striped table-bordered")
-		appendNode(table)
+		return table
 	}
 
     function appendNode(node) {
@@ -68,16 +70,21 @@
         div.className = "outputItem"
         $(div).append(node)
         output.appendChild(div);
-        output.scrollTop = output.scrollHeight;
+		scrollToBottom()
     }
+
+	function scrollToBottom() {
+        output.scrollTop = output.scrollHeight
+	}
 
     var repl = Repl({
         setInputText : setInputText,
         getInputText : getInputText,
         setInputPlaceholderText : setInputPlaceholderText,
-        appendTextLine : appendTextLine,
-        appendTable : appendTable,
+        createTextNode : createTextNode,
+        styleTable : styleTable,
         appendNode : appendNode,
+		scrollToBottom : scrollToBottom
     })
 
 </script>       

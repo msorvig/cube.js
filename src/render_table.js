@@ -1,5 +1,5 @@
 // view->html "table-list" (1D table)
-function createList(view)
+function createListHtml(view)
 {
     // header
     var table = $("<table>")
@@ -19,6 +19,13 @@ function createList(view)
         })
     })
     return table
+}
+
+function createListWidget(initialView, queryFunction, styleFunction) {
+    function htmlFunction(view) {
+        return styleFunction(createListHtml(queryFunction(view)))
+    }
+    return createDynamicHtmlWidget(initialView, htmlFunction)
 }
 
 function TableDataProvider(view) {
@@ -81,13 +88,14 @@ function TableDataProvider(view) {
 
 
 // view->html table (1D / 2D table)
-function createTable(view)
+function createTableHtml(view)
 {
 	dataProvider = TableDataProvider(view)
 
     // header
     var table = $("<table>")
-    var head = table.append($("<thead>"))
+    var head = $("<thead>")
+    table.append(head)
     var tr = $("<tr/>¨")
     head.append(tr)
     if(!dataProvider.is1D())
@@ -108,3 +116,11 @@ function createTable(view)
     })
     return table
 }
+
+function createTableWidget(initialView, queryFunction, styleFunction) {
+    function htmlFunction(view) {
+        return styleFunction(createTableHtml(queryFunction(view)))
+    }
+    return createDynamicHtmlWidget(initialView, htmlFunction)
+}
+
