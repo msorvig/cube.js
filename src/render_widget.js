@@ -1,24 +1,24 @@
-/*
-    Widgets render table views.
-
-    Widget Interface:
-    Constructor: 
-        var foo = createFoo(view, ...)
-    Get html/dom nodes:
-        foo.render()
-    Update view:
-        foo.update(view)
-
-    (the widget updates its internal DOM on update() - render is not called again)    
-*/
-
+// = Widget =
+//    Widget is an interface for UI components that display table
+//    views and respond to view updates.
+//
+//    Widget Interface:
 // 
-function createHtmlWidget(html) {
-    function render() { return html }
-    function update(view) { } // no-op
-    return { render: render, update: update }
-}
+//    * render() -> root html element
+//    * update(view)
+//
+//   render() is called once at "show" time. update(view) is called when there
+//   is a view udpate with a new view. The widget should update its html ouput
+//   at this  point. Render is not called again.
 
+// = HtmlWidget =
+// HtmlWidget wraps an html producer in a widget.
+//
+// {{{ initialView  [TableView] }}} The initial data view\\
+// {{{htmlFunction(view) -> html }}}  UI producer function
+//
+// {{{htmlFunction}}} is called on render() and update().
+//
 function createHtmlWidget(initialView, htmlFunction) {
     var container = $("<div>")
     
@@ -35,7 +35,15 @@ function createHtmlWidget(initialView, htmlFunction) {
     return { render: render, update: update }
 }
 
-// embeds
+// = ContainerWidget =
+//
+// Containerwidgets contain one or more child widgets.
+//
+// {{{widgets [Array]}}}  Child widgets to wrap
+//
+// Containerwidgets contain one or more child widgets and adds the html for
+// the sub-widgets in a <div> element. update() calls are forwarded to child
+// widgets.
 function createContainerWidget(widgets) {
     function render() {
         var container = $("<div>")
@@ -51,23 +59,27 @@ function createContainerWidget(widgets) {
     return { render: render, update: update }
 }
 
-function createSubViewRepater(view, dimension, callback) {
-    var container = $("<div>")
-    view.forEachSubView(dimension, function(val, makeView) {
-        container.append(callback(makeView(), val))
-    })
-    return container
-}
-
-function createSubViewWidget(view, dimension, createCallback, createTextCallback) {
+// = SubViewWidget =
+//
+// SubViewWidget instansiates and contains sub-widgets for all unique values in a
+// dimension.
+//
+// {{{view [TableView]}}}  The initial data view\\
+// {{{dimension [String]}}} The dimension to create subview widgets on\\
+// {{{createCallback(view) -> Widget}}} A constructor function that creates
+// a (sub-) widget for a view\\
+// {{{createLabelCallback(value) -> Widget}}} A constructor function that
+// creates a label for a view. (optional)
+//
+function createSubViewWidget(view, dimension, createCallback, createLabelCallback) {
     var widgets = {}
     function render() {
         var container = $("<div>")
         view.forEachSubView(dimension, function(val, makeView) {
             var widget = createCallback(makeView())
             widgets[val] = widget
-            if (createTextCallback)
-                container.append(createTextCallback(val))
+            if (createLabelCallback)
+                container.append(createLabelCallback(val))
             container.append(widget.render())
         })
         return container
@@ -84,6 +96,15 @@ function createSubViewWidget(view, dimension, createCallback, createTextCallback
     }
     return { render: render, update: update }
 }
+
+function createSubViewRepater(view, dimension, callback) {
+    var container = $("<div>")
+    view.forEachSubView(dimension, function(val, makeView) {
+        container.append(callback(makeView(), val))
+    })
+    return container
+}
+
 
 
 
