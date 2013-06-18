@@ -25,7 +25,7 @@ function createListWidget(initialView, queryFunction, styleFunction) {
     function htmlFunction(view) {
         return styleFunction(createListHtml(queryFunction(view)))
     }
-    return createDynamicHtmlWidget(initialView, htmlFunction)
+    return createHtmlWidget(initialView, htmlFunction)
 }
 
 function TableDataProvider(view) {
@@ -121,6 +121,6 @@ function createTableWidget(initialView, queryFunction, styleFunction) {
     function htmlFunction(view) {
         return styleFunction(createTableHtml(queryFunction(view)))
     }
-    return createDynamicHtmlWidget(initialView, htmlFunction)
+    return createHtmlWidget(initialView, htmlFunction)
 }
 

@@ -23,7 +23,7 @@ function Repl(env) {
     var m_view = {}
 
     function createTextWidget(text) {
-        return createDynamicHtmlWidget(undefined, env.createTextNode.bind(env, text))
+        return createHtmlWidget(undefined, env.createTextNode.bind(env, text))
     }
 
     function load(filePath) {

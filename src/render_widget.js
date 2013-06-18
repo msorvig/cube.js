@@ -19,7 +19,7 @@ function createHtmlWidget(html) {
     return { render: render, update: update }
 }
 
-function createDynamicHtmlWidget(initialView, htmlFunction) {
+function createHtmlWidget(initialView, htmlFunction) {
     var container = $("<div>")
     
     function render() {
