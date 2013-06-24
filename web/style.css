@@ -1,0 +1,13 @@
+body { margin: 10; overflow : hidden}
+.layout-row, .col { overflow: hidden; position: absolute; }
+.layout-row { left: 10; right: 10; }
+.col { top: 0; bottom: 0; }
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+
+.header.layout-row { height: 60px; top: 0; }
+.body.layout-row { top: 60px; bottom: 50px; }
+.footer.layout-row { height: 50px; bottom: 0; }
+.outputItem { float : left; clear : both; font-family: monospace}
+.outputItemPre { display : inline }
+.header { font-family: monospace }
