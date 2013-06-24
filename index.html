@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cube.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script src="jquery.min.js"></script>
+    <script src="highcharts.js"></script>
+    <script src="bootstrap.min.js"></script>
+
+    <script src="cube.js"></script>
+
+    <!-- Le styles -->
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+
+      /* Custom container */
+      .container-narrow {
+        margin: 0 auto;
+        max-width: 700px;
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        margin: 60px 0;
+        text-align: center;
+      }
+      .jumbotron h1 {
+        font-size: 72px;
+        line-height: 1;
+      }
+      .jumbotron .btn {
+        font-size: 21px;
+        padding: 14px 24px;
+      }
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 60px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+		
+	  .cubeQuery {
+		font-size: 12px;
+		font-style:italic;
+	   }
+
+    </style>
+    <link href="bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../assets/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="../assets/ico/favicon.png"-->
+
+   <script type="text/javascript">
+   var cube = makeCubeAPI()
+   cube.load("sales.json")
+  </script>
+
+
+  </head>
+
+  <body>
+
+    <div class="container-narrow">
+
+      <div class="masthead">
+        <!--ul class="nav nav-pills pull-right">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul-->
+        <h3 class="muted">cube.js</h3>
+      </div>
+
+      <hr>
+
+      <div class="jumbotron">
+        <h2>Small Data Multidimensional Visualization</h2>
+        <p class="lead"></p>
+      </div>
+
+      <hr>
+
+      <div class="row-fluid marketing">
+        <div>
+	      <h4>A Sales Database</h4>
+          <p>Consider a sales database, which contains one <i>measure</i> <strong>Sales</strong> and several <i>dimensions</i>: 
+			<strong>Country</strong>, <strong>City</strong>, <strong>Product</strong>, <strong>Year</strong>. Altogether 144 rows (remember - "small data"). Here's a section of the table:
+			<br><div class="cubeQuery">print Sales &gt 100 Sales &lt 110</div>
+			<div id="partialTable"></div>
+			<script type = "text/javascript"> 
+	        var container = document.getElementById("partialTable")
+	        $(container).append(cube.runCommand("print Sales > 100 Sales < 110"))
+			</script>
+		</p>
+		<h4>Summarizing</h4>
+		<p> Cube.js supports summarizing on any of the dimensions. For example by <strong>Country</strong>:
+			<br><div class="cubeQuery">print Country</div>
+			<div id="countrySum"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("countrySum")
+	        $(output).append(cube.runCommand("print Country"))
+			</script>
+
+
+			Or by <strong>Product</strong> (Product B is not doing to well)
+			<br><div class="cubeQuery">print Product</div>
+			<div id="productSum"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("productSum")
+	        $(output).append(cube.runCommand("print Product"))
+			</script>
+		</p>
+		
+		<h4>Tables</h4>
+		<p> We can tabulate for two dimensions: 
+			<br><div class="cubeQuery">tabulate Year City</div>
+			<div id="yearCityTable"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("yearCityTable")
+	        $(output).append(cube.runCommand("tabulate Year City"))
+			</script>
+		</p>
+
+		<h4>Plots</h4>
+		<p> Plots are also supported: (curtesy of Highcharts)
+			<br><div class="cubeQuery">plot Year Product</div>
+			<div id="yearProductPlot"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("yearProductPlot")
+	        $(output).append(cube.runCommand("plot Year Product"))
+			</script>
+		</p>
+		<p> Let's invert that plot:
+			<br><div class="cubeQuery">plot Product Year</div>
+			<div id="productYearPlot"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("productYearPlot")
+	        $(output).append(cube.runCommand("plot Product Year"))
+			</script>
+		</p>
+
+		<h4>Interactive UI</h4>
+		<p> Creating UI for navigating (curtesy of Bootstrap):
+			<br><div class="cubeQuery">selector Year tabulate Country Product</div>
+			<div id="selector"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("selector")
+	        $(output).append(cube.runCommand("selector Year tabulate Country Product"))
+			</script>
+		</p>
+		<p> Now let's skip Product "C" and "D":
+			<br><div class="cubeQuery">selector Year tabulate Country Product Product !="C" Product !="D"</div>
+			<div id="selector2"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("selector2")
+	        $(output).append(cube.runCommand("selector Year tabulate Country Product Product !='C' Product !='D'"))
+			</script>
+		</p>
+
+		<p> 
+			<h4>Nested Navigation</h4>
+			<br><div class="cubeQuery">selector Year selector Country plot Product City</div>
+			<div id="nested"></div>
+			<script type = "text/javascript"> 
+	        var output = document.getElementById("nested")
+	        $(output).append(cube.runCommand("selector Year selector Country plot Product City"))
+			</script>
+		</p>
+		
+		<h4>Try It out! <a href="repl.html">Interactive Command Line</a></h4>
+		<ol>
+			<li>"load sales.json"</li>
+			<li>"print", "plot" commands as listed in the examples above</li>
+		</ol>
+      </div>
+
+      <hr>
+
+      <div class="footer">
+        <p>&copy; Morten Johan Sørvig 2013</p>
+      </div>
+
+    </div> <!-- /container -->
+
+  </body>
+</html>
