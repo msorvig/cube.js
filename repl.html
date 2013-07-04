@@ -11,93 +11,27 @@
     <script src="cube.js" ></script>
     <link rel="stylesheet" href="./style.css" />
 
-    <script type="text/javascript">
+	<script type="text/javascript">
+		var repl = makeReplWrapper("input", "output")
+	</script>
 
-    var outputStr = "output"
-    var inputStr = "input"
+	</head>
+	    <body onload="repl.setInputFocus();">
 
-    function setInputFocus() {
-        var input = document.getElementById(inputStr)
-        input.focus()
-    }
+	        <div class="header layout-row">
+	            <h2>Cube.js Command Line</h2>
+	        </div>
 
-    function setInputText(text) {
-        var input = document.getElementById(inputStr)
-        input.value = text
-    }
+	        <div class="body layout-row scroll-y" id="output">
 
-    function getInputText() {
-        var input = document.getElementById(inputStr)
-        return input.value
-    }
+	        </div>
 
-    function setInputPlaceholderText(text) {
-        var input = document.getElementById(inputStr)
-        input.placeholder = text
-    }
-
-	function createTextNode(text) {
-        var pre = document.createElement('pre');
-        pre.className = "outputItemPre"
-        pre.appendChild(document.createTextNode(text))
-		return pre
-	}
-
-	function styleTable(table) {
-		// add bootstrap style classes:
-		$(table).addClass("table table-condensed table-striped table-bordered")
-		return table
-	}
-
-    function appendNode(node) {
-        var output = document.getElementById(outputStr)
-        var div = document.createElement('div');
-        div.className = "outputItem"
-        $(div).append(node)
-        output.appendChild(div);
-		scrollToBottom()
-    }
-
-	function scrollToBottom() {
-        output.scrollTop = output.scrollHeight
-	}
-
-	// Create the read-eval-print loop with two environments,
-	// the host environment implemented in this file, and the command
-	// environment which ties the repl to the rest of the system.
-	var hostEnvironment = {
-        setInputText : setInputText,
-        getInputText : getInputText,
-        setInputPlaceholderText : setInputPlaceholderText,
-        createTextNode : createTextNode,
-        styleTable : styleTable,
-        appendNode : appendNode,
-		scrollToBottom : scrollToBottom
-    }
-	var commandsEnvironment = makeCommands(hostEnvironment)
-    var repl = Repl(hostEnvironment, commandsEnvironment)
-
-</script>       
-
-</head>
-    <body onload="setInputFocus();">
-        
-        <div class="header layout-row">
-            <h2>Cube.js Command Line</h2>
-        </div>
-
-        <div class="body layout-row scroll-y" id="output">
-
-        </div>
-
-        <div class="footer layout-row">
-           <input id="input" type = text; style="width: 100%;" 
-                placeholder="Command or 'help' to list available commands"; 
-                onchange="repl.textChanged()"
-                onkeydown="repl.keyDown(event)"
-            </input>
-        </div>
-    </body>
-
-
+	        <div class="footer layout-row">
+	           <input id="input" type = text; style="width: 100%;"
+	                placeholder="Command or 'help' to list available commands";
+	                onchange="repl.textChanged()"
+	                onkeydown="repl.keyDown(event)"
+	            </input>
+	        </div>
+	    </body>
 </html>

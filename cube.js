@@ -1,7 +1,6 @@
 function makeCommands(env) {
-    
-var m_cube = {}
-var m_view = {}
+
+var _env = env || makeStandardEnvironment()
 
 var commands = ["help", "load", "select", "print", "tabulate", "plot", "foreach", "selector"] // keep in sync with help text!
 var takesArgs= { "help" : false, "load" : true, "select" : true, "print" : true,
@@ -29,7 +28,7 @@ function createTextWidget(text) {
 function load(filePath) {
     var widgets = []
     function loadComplete(data) {
-        m_cube = makeCube(makeTableView(makeTable(data)))
+        _env.cube = makeCube(makeTableView(makeTable(data)))
         widgets.push(createTextWidget("Load OK: "+ filePath))
         widgets.push(select(""))
     }
@@ -46,10 +45,10 @@ function selectOnView(query, view) {
 }
 
 function select(query) {
-    m_view = m_cube.select(query)
+    _env.view = _env.cube.select(query)
     return createContainerWidget([
-        createTextWidget("Columns " + m_view.columnIds().join(" ")),
-        createTextWidget("Rows " + m_view.rowCount()),
+        createTextWidget("Columns " + _env.view.columnIds().join(" ")),
+        createTextWidget("Rows " + _env.view.rowCount()),
     ])
 }
 
@@ -116,11 +115,16 @@ function switchCommand(commandLine, view) {
         return createTextWidget("Unknown command: " + commandLine)
     }
 }
+
+// runs a command from the command line with the default view and returns html
+function run(commandLine) {
+    return switchCommand(commandLine, _env.view).render()
+}
+
 return {
-    switchCommand : switchCommand,
-    commands : function() { return commands },
+    run : run,
+    names : function() { return commands },
     takesArgs : function() { return takesArgs },
-    view : function() { return m_view },
 }
 
 }
@@ -412,19 +416,16 @@ function makeCubeAPI() {
     var commands = makeCommands(env)
     
     function load(url, callback) {
-        console.log("load " + url)
-        commands.switchCommand("load " + url, commands.view())
+        commands.run("load " + url)
     }
     
     function runCommand(command, callback) {
-        var result = commands.switchCommand(command, commands.view())
-        var rendered = result.render()
-        return rendered
+        return commands.run(command)
     }
     
     return {
         load : load,
-        runCommand : runCommand
+        runCommand : runCommand,
     }
 }
 function getJson_impl(url, callback, error, async) {
@@ -464,7 +465,22 @@ function loadData(dataUrl, callback)
     getJson(dataUrl + '/data.json' , callback)
 }
 
-// A genral lexer
+function makeStandardEnvironment() {
+    return {
+    // Global Cube and View
+        cube : {},
+        view : {},
+
+    // Styling odds and ends
+        createTextNode : function (text) {
+            return document.createTextNode(text)
+        },
+        styleTable : function (table) {
+	        $(table).addClass("table table-condensed table-striped table-bordered")
+            return table
+        },
+    }
+}// A genral lexer
 //
 // Usage:
 //
@@ -1504,9 +1520,7 @@ function createSubViewRepater(view, dimension, callback) {
 
 
     
-    function Repl(hostEnvironment, commandEnvironment) {
-    var env = hostEnvironment
-
+    function makeRepl(env, commands) {
     var tabCompleteIndex = -1
     var typedPrefix = ""
 
@@ -1533,8 +1547,8 @@ function createSubViewRepater(view, dimension, callback) {
         }
     }
 
-    function createTextWidget(text) {
-        return createHtmlWidget(undefined, env.createTextNode.bind(env, text))
+    function createTextLine(text) {
+        return env.createTextNode.bind(env, text)
     }
 
     function processCommand(commandLine) {
@@ -1546,9 +1560,9 @@ function createSubViewRepater(view, dimension, callback) {
 
         typedPrefix = "" // reset tab completion
 
-        env.appendNode(createTextWidget("> " + commandLine).render())
-        env.appendNode(commandEnvironment.switchCommand(commandLine, commandEnvironment.view()).render())
-        env.appendNode(createTextWidget(" ").render())
+        env.appendNode(createTextLine("> " + commandLine))
+        env.appendNode(commands.run(commandLine))
+        env.appendNode(createTextLine(" "))
     }
 
     function textChanged() {
@@ -1577,7 +1591,7 @@ function createSubViewRepater(view, dimension, callback) {
         if (typedPrefix == "")
             return
 
-        var candidates = commandEnvironment.commands().filter(function(command) {
+        var candidates = commands.names().filter(function(command) {
             return command.indexOf(typedPrefix) == 0
         })
         if (candidates.length == 0)
@@ -1586,7 +1600,7 @@ function createSubViewRepater(view, dimension, callback) {
         ++tabCompleteIndex;
         var candidateIndex = tabCompleteIndex % candidates.length
         var candidate = candidates[candidateIndex]
-        if (commandEnvironment.takesArgs()[candidate])
+        if (commands.takesArgs()[candidate])
             candidate += " "
         env.setInputText(candidate)
     }
@@ -1622,7 +1636,72 @@ function createSubViewRepater(view, dimension, callback) {
         keyDown : keyDown,
     }
 }
-// Concat all the node types in an ast to a string, for example "VariableExpressionUnaryOperator"
+function makeReplWrapper(inputStr, outputStr) {
+    function setInputFocus() {
+        var input = document.getElementById(inputStr)
+        input.focus()
+    }
+
+    function setInputText(text) {
+        var input = document.getElementById(inputStr)
+        input.value = text
+    }
+
+    function getInputText() {
+        var input = document.getElementById(inputStr)
+        return input.value
+    }
+
+    function setInputPlaceholderText(text) {
+        var input = document.getElementById(inputStr)
+        input.placeholder = text
+    }
+
+	function createTextNode(text) {
+        var pre = document.createElement('pre');
+        pre.className = "outputItemPre"
+        pre.appendChild(document.createTextNode(text))
+		return pre
+	}
+
+	function styleTable(table) {
+		// add bootstrap style classes:
+		$(table).addClass("table table-condensed table-striped table-bordered")
+		return table
+	}
+
+    function appendNode(node) {
+        var output = document.getElementById(outputStr)
+        var div = document.createElement('div');
+        div.className = "outputItem"
+        $(div).append(node)
+        output.appendChild(div);
+		scrollToBottom()
+    }
+
+	function scrollToBottom() {
+        output.scrollTop = output.scrollHeight
+	}
+
+	// Create the read-eval-print loop with two environments,
+	// the host environment implemented in this file, and the command
+	// environment which ties the repl to the rest of the system.
+	var hostEnvironment = makeStandardEnvironment()
+	hostEnvironment.setInputText = setInputText
+	hostEnvironment.getInputText = getInputText
+	hostEnvironment.setInputPlaceholderText = setInputPlaceholderText
+	hostEnvironment.createTextNode = createTextNode
+	hostEnvironment.styleTable = styleTable
+	hostEnvironment.appendNode = appendNode
+	hostEnvironment.scrollToBottom = scrollToBottom
+
+    var repl = makeRepl(hostEnvironment, makeCommands(hostEnvironment))
+    return {
+        setInputFocus : setInputFocus,
+        textChanged : function() { repl.textChanged() },
+        keyDown : function(event) { repl.keyDown(event) },
+    }
+}// Concat all the node types in an ast to a string, for example "VariableExpressionUnaryOperator"
 function typeStringConcatVisit(rootNode) {
     var string = ""
     rootNode.visit(function(node) {
